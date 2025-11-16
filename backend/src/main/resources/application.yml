@@ -9,7 +9,7 @@ properties:
     life-max: 3
 
 server:
-  port: 8081
+  port: 8080
 
 spring:
   application:
