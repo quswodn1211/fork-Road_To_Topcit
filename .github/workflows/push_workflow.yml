@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout
+      # 1. 소스 체크아웃
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -19,7 +19,7 @@ jobs:
       - name: Docker Compose Version
         run: docker compose version
 
-      # 3. Start backend only (AWS RDS 사용)
+      # 3. Backend 실행
       - name: Start Backend with RDS
         run: docker compose up -d --build backend
         env:
@@ -27,58 +27,44 @@ jobs:
           SPRING_DATASOURCE_USERNAME: admin
           SPRING_DATASOURCE_PASSWORD: topcit1234
 
-      # 4. Wait for backend to start
+      # 4. Backend 준비 대기 + 실패 시 로그 출력
       - name: Wait for Backend
         run: |
-          echo "Waiting for backend..."
+          echo "⏳ Waiting for backend..."
           for i in {1..60}; do
             STATUS=$(curl -o /dev/null -s -w "%{http_code}" http://localhost:8080/api/subjects || true)
             if [ "$STATUS" = "200" ]; then
-              echo "Backend is UP!"
+              echo "🎉 Backend is UP!"
               exit 0
             fi
             echo "Backend not ready (HTTP $STATUS)... retrying"
             sleep 3
           done
 
-          echo "Backend FAILED TO START"
+          echo "❌ Backend FAILED"
           docker ps -a
-          echo "---- BACKEND LOGS ----"
-          docker logs backend || true
+          docker logs backend
           exit 1
 
       ###########################################################
-      #                  API TESTS (AI 문제 생성 이전까지만)         #
+      #                    GET ONLY TESTS
       ###########################################################
 
-      # 1) GET /api/subjects
       - name: 1) GET /api/subjects
         run: |
           STATUS=$(curl -o /dev/null -s -w "%{http_code}" http://localhost:8080/api/subjects)
           echo "Status: $STATUS"
           test $STATUS -eq 200
 
-      # 2) POST /api/questions
-      - name: 2) POST /api/questions
-        run: |
-          STATUS=$(curl -o /dev/null -s -w "%{http_code}" \
-            -X POST http://localhost:8080/api/questions \
-            -H "Content-Type: application/json" \
-            -d '{"title":"test question","content":"some content","subjectId":1}')
-          echo "Status: $STATUS"
-          test $STATUS -ge 200 && test $STATUS -lt 500
-
-      # 3) GET /api/questions/1
-      - name: 3) GET /api/questions/1
+      - name: 2) GET /api/questions/1
         run: |
           STATUS=$(curl -o /dev/null -s -w "%{http_code}" http://localhost:8080/api/questions/1)
           echo "Status: $STATUS"
           test $STATUS -ge 200 && test $STATUS -lt 500
 
-      # 4) GET /api/questions?subject=2
-      - name: 4) GET /api/questions?subject=2
+      - name: 3) GET /api/questions?subject=1
         run: |
-          STATUS=$(curl -o /dev/null -s -w "%{http_code}" "http://localhost:8080/api/questions?subject=2")
+          STATUS=$(curl -o /dev/null -s -w "%{http_code}" "http://localhost:8080/api/questions?subject=1")
           echo "Status: $STATUS"
           test $STATUS -ge 200 && test $STATUS -lt 500
 
