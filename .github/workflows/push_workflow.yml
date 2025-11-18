@@ -11,25 +11,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout source code
+      # 1. 소스 체크아웃
       - name: Checkout
         uses: actions/checkout@v3
 
-      # 2. Show Docker Compose version
+      # 2. Docker Compose 버전 확인
       - name: Docker Compose Version
         run: docker compose version
 
-      # 3. Start Backend (RDS 사용)
+      # 3. Backend 실행 (AWS RDS 사용)
       - name: Start Backend with RDS
         run: |
-          echo "Starting backend with RDS..."
           docker compose up -d --build
         env:
           SPRING_DATASOURCE_URL: jdbc:mysql://topcit-db.cjg2aaai646f.ap-northeast-2.rds.amazonaws.com:3306/topcit
           SPRING_DATASOURCE_USERNAME: admin
           SPRING_DATASOURCE_PASSWORD: topcit1234
 
-      # 4. Wait for backend + print logs if backend fails
+      # 4. Backend 준비 대기 + 실패 시 자동 로그 출력
       - name: Wait for Backend
         run: |
           echo "⏳ Waiting for backend to start..."
@@ -37,21 +36,21 @@ jobs:
           for i in {1..60}; do
             STATUS=$(curl -o /dev/null -s -w "%{http_code}" http://localhost:8080/api/subjects)
             if [ "$STATUS" -eq 200 ]; then
-              echo "🎉 Backend is UP! (HTTP 200)"
+              echo "🎉 Backend is UP!"
               exit 0
             fi
             echo "Backend not ready yet (HTTP $STATUS)... retrying ($i/60)"
             sleep 3
           done
 
-          echo "❌ Backend failed to start in 60 attempts."
+          echo "❌ Backend failed to start after 60 attempts."
 
           echo "---- Docker Containers ----"
           docker ps -a || true
 
-          echo "---- Searching for backend container ----"
+          echo "---- Detecting backend container ----"
           BACKEND_CONTAINER=$(docker ps -a --format "{{.Names}}" | grep "backend" || true)
-          echo "Found Backend Container: $BACKEND_CONTAINER"
+          echo "Detected backend container: $BACKEND_CONTAINER"
 
           echo "---- Backend Logs ----"
           docker logs $BACKEND_CONTAINER || true
@@ -59,48 +58,48 @@ jobs:
           exit 1
 
       ###########################################################
-      #                    API FUNCTION TESTS
+      #                      API FUNCTION TESTS                 #
       ###########################################################
 
       - name: 1) GET /api/subjects
         run: |
-          STATUS=$(curl -o /dev/null -s -w "%{http_code}" http://localhost:8080/api/subjects)
+          STATUS=$(curl -o /null -s -w "%{http_code}" http://localhost:8080/api/subjects)
           echo "Status: $STATUS"
           test $STATUS -eq 200
 
       - name: 2) POST /api/questions
         run: |
-          STATUS=$(curl -o /dev/null -s -w "%{http_code}" \
+          STATUS=$(curl -o /null -s -w "%{http_code}" \
             -X POST http://localhost:8080/api/questions \
             -H "Content-Type: application/json" \
-            -d '{"title":"test", "content":"some content", "subjectId":1}')
+            -d '{"title":"test", "content":"data", "subjectId":1}')
           echo "Status: $STATUS"
           test $STATUS -ge 200 && test $STATUS -lt 500
 
       - name: 3) GET /api/questions/1
         run: |
-          STATUS=$(curl -o /dev/null -s -w "%{http_code}" http://localhost:8080/api/questions/1)
+          STATUS=$(curl -o /null -s -w "%{http_code}" http://localhost:8080/api/questions/1)
           echo "Status: $STATUS"
           test $STATUS -ge 200 && test $STATUS -lt 500
 
       - name: 4) GET /api/questions?subject=1
         run: |
-          STATUS=$(curl -o /dev/null -s -w "%{http_code}" "http://localhost:8080/api/questions?subject=2")
+          STATUS=$(curl -o /null -s -w "%{http_code}" "http://localhost:8080/api/questions?subject=1")
           echo "Status: $STATUS"
           test $STATUS -ge 200 && test $STATUS -lt 500
 
       - name: 5) POST /api/questions/ai-generate
         run: |
-          STATUS=$(curl -o /dev/null -s -w "%{http_code}" \
+          STATUS=$(curl -o /null -s -w "%{http_code}" \
             -X POST http://localhost:8080/api/questions/ai-generate \
             -H "Content-Type: application/json" \
-            -d '{"prompt":"운영체제 스케줄링"}')
+            -d '{"prompt":"운영체제 스케줄링 설명"}')
           echo "Status: $STATUS"
           test $STATUS -ge 200 && test $STATUS -lt 500
 
       - name: 6) POST /api/attempts
         run: |
-          STATUS=$(curl -o /dev/null -s -w "%{http_code}" \
+          STATUS=$(curl -o /null -s -w "%{http_code}" \
             -X POST http://localhost:8080/api/attempts \
             -H "Content-Type: application/json" \
             -d '{"questionId":1, "answer":"답변"}')
@@ -109,31 +108,31 @@ jobs:
 
       - name: 7) GET /api/attempts/question/1
         run: |
-          STATUS=$(curl -o /dev/null -s -w "%{http_code}" http://localhost:8080/api/attempts/question/1)
+          STATUS=$(curl -o /null -s -w "%{http_code}" http://localhost:8080/api/attempts/question/1)
           echo "Status: $STATUS"
           test $STATUS -ge 200 && test $STATUS -lt 500
 
       - name: 8) GET /api/attempts/my
         run: |
-          STATUS=$(curl -o /dev/null -s -w "%{http_code}" http://localhost:8080/api/attempts/my)
+          STATUS=$(curl -o /null -s -w "%{http_code}" http://localhost:8080/api/attempts/my)
           echo "Status: $STATUS"
           test $STATUS -ge 200 && test $STATUS -lt 500
 
       - name: 9) GET /api/recommend/weakness
         run: |
-          STATUS=$(curl -o /dev/null -s -w "%{http_code}" http://localhost:8080/api/recommend/weakness)
+          STATUS=$(curl -o /null -s -w "%{http_code}" http://localhost:8080/api/recommend/weakness)
           echo "Status: $STATUS"
           test $STATUS -ge 200 && test $STATUS -lt 500
 
       - name: 10) GET /api/recommend/today
         run: |
-          STATUS=$(curl -o /dev/null -s -w "%{http_code}" http://localhost:8080/api/recommend/today)
+          STATUS=$(curl -o /null -s -w "%{http_code}" http://localhost:8080/api/recommend/today)
           echo "Status: $STATUS"
           test $STATUS -ge 200 && test $STATUS -lt 500
 
       - name: 11) POST /api/chat
         run: |
-          STATUS=$(curl -o /dev/null -s -w "%{http_code}" \
+          STATUS=$(curl -o /null -s -w "%{http_code}" \
             -X POST http://localhost:8080/api/chat \
             -H "Content-Type: application/json" \
             -d '{"message":"안녕"}')
@@ -142,25 +141,26 @@ jobs:
 
       - name: 12) GET /api/essence?subjectId=1
         run: |
-          STATUS=$(curl -o /dev/null -s -w "%{http_code}" "http://localhost:8080/api/essence?subjectId=1")
+          STATUS=$(curl -o /null -s -w "%{http_code}" "http://localhost:8080/api/essence?subjectId=1")
           echo "Status: $STATUS"
           test $STATUS -ge 200 && test $STATUS -lt 500
 
       - name: 13) GET /api/essence/1
         run: |
-          STATUS=$(curl -o /dev/null -s -w "%{http_code}" "http://localhost:8080/api/essence/1")
+          STATUS=$(curl -o /null -s -w "%{http_code}" "http://localhost:8080/api/essence/1")
           echo "Status: $STATUS"
           test $STATUS -ge 200 && test $STATUS -lt 500
 
       - name: 14) GET /api/weekly-plan?weekStart=2025-01-01
         run: |
-          STATUS=$(curl -o /dev/null -s -w "%{http_code}" "http://localhost:8080/api/weekly-plan?weekStart=2025-01-01")
+          STATUS=$(curl -o /null -s -w "%{http_code}" \
+            "http://localhost:8080/api/weekly-plan?weekStart=2025-01-01")
           echo "Status: $STATUS"
           test $STATUS -ge 200 && test $STATUS -lt 500
 
       - name: 15) PUT /api/weekly-plan
         run: |
-          STATUS=$(curl -o /dev/null -s -w "%{http_code}" \
+          STATUS=$(curl -o /null -s -w "%{http_code}" \
             -X PUT http://localhost:8080/api/weekly-plan \
             -H "Content-Type: application/json" \
             -d '{"weekStart":"2025-01-01","planItems":[]}')
@@ -169,14 +169,14 @@ jobs:
 
       - name: 16) POST /api/weekly-plan/ai-generate
         run: |
-          STATUS=$(curl -o /dev/null -s -w "%{http_code}" \
+          STATUS=$(curl -o /null -s -w "%{http_code}" \
             -X POST http://localhost:8080/api/weekly-plan/ai-generate \
             -H "Content-Type: application/json" \
-            -d '{"prompt":"컴퓨터구조 공부계획"}')
+            -d '{"prompt":"컴퓨터구조 공부"}')
           echo "Status: $STATUS"
           test $STATUS -ge 200 && test $STATUS -lt 500
 
-      # Shutdown containers
+      # Docker 종료
       - name: Shutdown Docker
         if: always()
         run: docker compose down
