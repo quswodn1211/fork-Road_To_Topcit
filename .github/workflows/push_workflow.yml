@@ -11,48 +11,55 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. 소스 체크아웃
+      # 1. Checkout source code
       - name: Checkout
         uses: actions/checkout@v3
 
-      # 2. Docker Compose 버전 확인
+      # 2. Show Docker Compose version
       - name: Docker Compose Version
         run: docker compose version
 
-      # 3. Backend 실행 (AWS RDS 사용)
+      # 3. Start Backend (RDS 사용)
       - name: Start Backend with RDS
         run: |
+          echo "Starting backend with RDS..."
           docker compose up -d --build
         env:
           SPRING_DATASOURCE_URL: jdbc:mysql://topcit-db.cjg2aaai646f.ap-northeast-2.rds.amazonaws.com:3306/topcit
           SPRING_DATASOURCE_USERNAME: admin
           SPRING_DATASOURCE_PASSWORD: topcit1234
 
-      # 4. Backend 준비 대기 + 실패 시 로그 출력
+      # 4. Wait for backend + print logs if backend fails
       - name: Wait for Backend
         run: |
           echo "⏳ Waiting for backend to start..."
+
           for i in {1..60}; do
             STATUS=$(curl -o /dev/null -s -w "%{http_code}" http://localhost:8080/api/subjects)
             if [ "$STATUS" -eq 200 ]; then
               echo "🎉 Backend is UP! (HTTP 200)"
               exit 0
             fi
-            echo "Backend not ready yet (HTTP $STATUS)... retrying"
+            echo "Backend not ready yet (HTTP $STATUS)... retrying ($i/60)"
             sleep 3
           done
 
           echo "❌ Backend failed to start in 60 attempts."
+
           echo "---- Docker Containers ----"
           docker ps -a || true
 
+          echo "---- Searching for backend container ----"
+          BACKEND_CONTAINER=$(docker ps -a --format "{{.Names}}" | grep "backend" || true)
+          echo "Found Backend Container: $BACKEND_CONTAINER"
+
           echo "---- Backend Logs ----"
-          docker logs backend || true
+          docker logs $BACKEND_CONTAINER || true
 
           exit 1
 
       ###########################################################
-      #                    API FUNCTION TESTS                   #
+      #                    API FUNCTION TESTS
       ###########################################################
 
       - name: 1) GET /api/subjects
@@ -66,7 +73,7 @@ jobs:
           STATUS=$(curl -o /dev/null -s -w "%{http_code}" \
             -X POST http://localhost:8080/api/questions \
             -H "Content-Type: application/json" \
-            -d '{"title":"test question", "content":"some content", "subjectId":1}')
+            -d '{"title":"test", "content":"some content", "subjectId":1}')
           echo "Status: $STATUS"
           test $STATUS -ge 200 && test $STATUS -lt 500
 
@@ -78,7 +85,7 @@ jobs:
 
       - name: 4) GET /api/questions?subject=1
         run: |
-          STATUS=$(curl -o /dev/null -s -w "%{http_code}" "http://localhost:8080/api/questions?subject=1")
+          STATUS=$(curl -o /dev/null -s -w "%{http_code}" "http://localhost:8080/api/questions?subject=2")
           echo "Status: $STATUS"
           test $STATUS -ge 200 && test $STATUS -lt 500
 
@@ -87,7 +94,7 @@ jobs:
           STATUS=$(curl -o /dev/null -s -w "%{http_code}" \
             -X POST http://localhost:8080/api/questions/ai-generate \
             -H "Content-Type: application/json" \
-            -d '{"prompt":"운영체제 스케줄링 설명해줘"}')
+            -d '{"prompt":"운영체제 스케줄링"}')
           echo "Status: $STATUS"
           test $STATUS -ge 200 && test $STATUS -lt 500
 
@@ -165,11 +172,11 @@ jobs:
           STATUS=$(curl -o /dev/null -s -w "%{http_code}" \
             -X POST http://localhost:8080/api/weekly-plan/ai-generate \
             -H "Content-Type: application/json" \
-            -d '{"prompt":"컴퓨터구조 공부 계획"}')
+            -d '{"prompt":"컴퓨터구조 공부계획"}')
           echo "Status: $STATUS"
           test $STATUS -ge 200 && test $STATUS -lt 500
 
-      # 종료
+      # Shutdown containers
       - name: Shutdown Docker
         if: always()
         run: docker compose down
