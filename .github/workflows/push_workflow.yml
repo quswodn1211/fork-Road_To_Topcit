@@ -11,51 +11,48 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. 체크아웃
+      # 1. 소스 체크아웃
       - name: Checkout
         uses: actions/checkout@v3
 
-      # 2. Docker Compose Version
+      # 2. Docker Compose 버전 확인
       - name: Docker Compose Version
         run: docker compose version
 
-      # 3. Backend 실행 (RDS 사용)
+      # 3. Backend 실행 (AWS RDS 사용)
       - name: Start Backend with RDS
         run: |
-          SPRING_DATASOURCE_URL="jdbc:mysql://topcit-db.cjg2aaai646f.ap-northeast-2.rds.amazonaws.com:3306/topcit"
-          SPRING_DATASOURCE_USERNAME="admin"
-          SPRING_DATASOURCE_PASSWORD="topcit1234"
-
-          docker compose up -d backend \
-            --build \
-            --remove-orphans \
-            --wait \
-            2>/dev/null || true
-
+          docker compose up -d --build
         env:
           SPRING_DATASOURCE_URL: jdbc:mysql://topcit-db.cjg2aaai646f.ap-northeast-2.rds.amazonaws.com:3306/topcit
           SPRING_DATASOURCE_USERNAME: admin
           SPRING_DATASOURCE_PASSWORD: topcit1234
 
-      # 4. backend 준비될 때까지 대기
+      # 4. Backend 준비 대기 + 실패 시 로그 출력
       - name: Wait for Backend
         run: |
-          echo "Waiting for backend to connect to RDS..."
+          echo "⏳ Waiting for backend to start..."
           for i in {1..60}; do
             STATUS=$(curl -o /dev/null -s -w "%{http_code}" http://localhost:8080/api/subjects)
             if [ "$STATUS" -eq 200 ]; then
-              echo "Backend is UP! (HTTP 200)"
+              echo "🎉 Backend is UP! (HTTP 200)"
               exit 0
             fi
-            echo "Backend not ready (status=$STATUS)... retrying"
+            echo "Backend not ready yet (HTTP $STATUS)... retrying"
             sleep 3
           done
-          echo "Backend not ready. Printing logs..."
-          docker logs backend
+
+          echo "❌ Backend failed to start in 60 attempts."
+          echo "---- Docker Containers ----"
+          docker ps -a || true
+
+          echo "---- Backend Logs ----"
+          docker logs backend || true
+
           exit 1
 
       ###########################################################
-      #            API FUNCTION TESTS                           #
+      #                    API FUNCTION TESTS                   #
       ###########################################################
 
       - name: 1) GET /api/subjects
