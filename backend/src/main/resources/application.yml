@@ -14,10 +14,11 @@ server:
 spring:
   application:
     name: learn-tc
+
   datasource:
-    url: jdbc:mysql://topcit-db.cjg2aaai646f.ap-northeast-2.rds.amazonaws.com:3306/topcit?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: admin
-    password: topcit1234
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
