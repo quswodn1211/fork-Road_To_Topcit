@@ -30,7 +30,7 @@ jobs:
       # 4. Wait for backend to start
       - name: Wait for Backend
         run: |
-          echo "⏳ Waiting for backend..."
+          echo "Waiting for backend..."
           for i in {1..60}; do
             STATUS=$(curl -o /dev/null -s -w "%{http_code}" http://localhost:8080/api/subjects || true)
             if [ "$STATUS" = "200" ]; then
@@ -41,14 +41,14 @@ jobs:
             sleep 3
           done
 
-          echo "❌ Backend FAILED TO START"
+          echo "Backend FAILED TO START"
           docker ps -a
           echo "---- BACKEND LOGS ----"
           docker logs backend || true
           exit 1
 
       ###########################################################
-      #                  API TESTS (AI 이전까지만)               #
+      #                  API TESTS (AI 문제 생성 이전까지만)         #
       ###########################################################
 
       # 1) GET /api/subjects
@@ -75,10 +75,10 @@ jobs:
           echo "Status: $STATUS"
           test $STATUS -ge 200 && test $STATUS -lt 500
 
-      # 4) GET /api/questions?subject=1
-      - name: 4) GET /api/questions?subject=1
+      # 4) GET /api/questions?subject=2
+      - name: 4) GET /api/questions?subject=2
         run: |
-          STATUS=$(curl -o /dev/null -s -w "%{http_code}" "http://localhost:8080/api/questions?subject=1")
+          STATUS=$(curl -o /dev/null -s -w "%{http_code}" "http://localhost:8080/api/questions?subject=2")
           echo "Status: $STATUS"
           test $STATUS -ge 200 && test $STATUS -lt 500
 
