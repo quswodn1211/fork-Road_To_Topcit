@@ -2,6 +2,7 @@ package com.opsw.backend.service;
 
 import com.opsw.backend.domain.Question;
 import com.opsw.backend.domain.user.Attempt;
+import com.opsw.backend.dto.AttemptHistoryResponse;
 import com.opsw.backend.dto.AttemptSubmitRequest;
 import com.opsw.backend.dto.AttemptSubmitResponse;
 import com.opsw.backend.dto.AttemptResponse;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -75,6 +77,23 @@ public class AttemptService {
                         .createdAt(a.getCreatedAt().format(fmt))
                         .build()
                 )
+                .toList();
+    }
+
+    public List<AttemptResponse> getAttemptsByUserId(Long userId) {
+
+        List<Attempt> attempts = attemptRepository.findByUserIdOrderByCreatedAtDesc(userId);
+
+        return attempts.stream()
+                .map(a -> new AttemptResponse(
+                        a.getId(),
+                        a.getUserId(),
+                        a.getQuestionId(),
+                        a.getSubmittedAnswer(),
+                        a.isCorrect(),
+                        a.getGainedXp(),
+                        a.getCreatedAt() == null ? null : a.getCreatedAt().toString()
+                ))
                 .toList();
     }
 }

@@ -9,4 +9,7 @@ public interface AttemptRepository extends JpaRepository<Attempt, Long> {
 
     // 특정 문제(questionId)의 풀이 이력을 모두 조회
     List<Attempt> findByQuestionIdOrderByCreatedAtDesc(Long questionId);
+
+    // 사용자 전체 풀이 이력 조회
+    List<Attempt> findByUserIdOrderByCreatedAtDesc(Long userId);
 }

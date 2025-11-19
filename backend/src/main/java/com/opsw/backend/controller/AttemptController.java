@@ -1,5 +1,6 @@
 package com.opsw.backend.controller;
 
+import com.opsw.backend.dto.AttemptHistoryResponse;
 import com.opsw.backend.dto.AttemptSubmitRequest;
 import com.opsw.backend.dto.AttemptSubmitResponse;
 import com.opsw.backend.dto.AttemptResponse;
@@ -36,4 +37,14 @@ public class AttemptController {
 
         return ResponseEntity.ok(attemptService.getAttemptsByQuestionId(questionId));
     }
+
+    @GetMapping("/my")
+    public ResponseEntity<List<AttemptResponse>> getMyAttempts(@RequestParam Long userId) {
+
+        List<AttemptResponse> response = attemptService.getAttemptsByUserId(userId);
+        return ResponseEntity.ok(response);
+    }
+
+
+
 }
