@@ -12,4 +12,7 @@ public interface AttemptRepository extends JpaRepository<Attempt, Long> {
 
     // 사용자 전체 풀이 이력 조회
     List<Attempt> findByUserIdOrderByCreatedAtDesc(Long userId);
+
+    // 약점 자동 분석
+    List<Attempt> findByUserId(Long userId);
 }

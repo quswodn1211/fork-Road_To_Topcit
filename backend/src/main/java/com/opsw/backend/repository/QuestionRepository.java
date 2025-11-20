@@ -6,6 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
+
 public interface QuestionRepository extends JpaRepository<Question, Long> {
 
     // 과목 ID로 문제 페이지 조회
@@ -21,4 +23,7 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
               OR LOWER(COALESCE(q.tags, '')) LIKE LOWER(CONCAT('%', :keyword, '%'))
            """)
     Page<Question> searchByKeyword(String keyword, Pageable pageable);
+
+    List<Question> findBySubject_Id(Long subjectId);
+
 }
