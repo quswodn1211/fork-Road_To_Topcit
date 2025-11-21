@@ -1,0 +1,17 @@
+
+--index-url https://download.pytorch.org/whl/cu124
+torch==2.6.0+cu124
+torchvision==0.21.0+cu124
+torchaudio==2.6.0+cu124
+
+transformers==latest
+accelerate
+datasets
+sentencepiece
+huggingface_hub
+bitsandbytes
+safetensors
+peft
+jupyter jupyterlab
+uvicorn fastapi
+xformers
