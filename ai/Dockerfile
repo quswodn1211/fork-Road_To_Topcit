@@ -12,30 +12,23 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 
 RUN apt-get update && apt-get install -y locales \
     && locale-gen en_US.UTF-8
+
 ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
  
+COPY requirements.txt /workspace/requirements.txt
+
 RUN pip install --upgrade pip
+RUN pip install -r /workspace/requirements.txt
 
-RUN pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 \
-    --index-url https://download.pytorch.org/whl/cu124
-
-RUN pip install \
-    transformers \
-    accelerate \
-    datasets \
-    sentencepiece \
-    huggingface_hub \
-    bitsandbytes \
-    safetensors \
-    peft \
-    jupyter jupyterlab \
-    uvicorn fastapi
-
-RUN pip install xformers
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
 
 WORKDIR /workspace
+COPY . /workspace
 
 EXPOSE 8888
 
-CMD ["bash", "-c", "jupyter lab --ip=0.0.0.0 --no-browser --allow-root"]
+CMD ["bash", "-c", "jupyter lab --ip=0.0.0.0 --no-browser --allow-root --ServerApp.password=$JUPYTER_PASSWORD"]
+>>>>>>> 4916b0a (workflow added)

@@ -1,0 +1,22 @@
+# name: RunPod GPU AI Workflow
+
+# on:
+#   push:
+#     branches: [ main ]
+#   workflow_dispatch:
+
+# jobs:
+#   train_model:
+#     runs-on: [self-hosted, runpod]
+#     steps:
+#       - name: Checkout Repository
+#         uses: actions/checkout@v3
+
+#       - name: docker composing
+#         run: docker compose up -d --build ai
+#         env:
+#           - JUPYER_PASSWORD: ${{secrets.JUPYER_PASSWORD}}
+#           - HF_TOKEN: ${{secrets.HF_TOKEN}}
+          
+#       - name: Run Training inside Container
+#         run: docker compose exec ai-service python train_model.py --epochs 5 --batch-size 32
