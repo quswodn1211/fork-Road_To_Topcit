@@ -1,9 +1,6 @@
 package com.opsw.backend.controller;
 
-import com.opsw.backend.dto.QuestionCreateRequest;
-import com.opsw.backend.dto.QuestionCreateResponse;
-import com.opsw.backend.dto.QuestionResponseDto;
-import com.opsw.backend.dto.QuestionSimpleDto;
+import com.opsw.backend.dto.*;
 import com.opsw.backend.service.QuestionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -39,5 +36,13 @@ public class QuestionController {
         }
         return questionService.getQuestionsBySubject(subjectId);
     }
+
+    @PostMapping("/ai-generate")
+    public QuestionAiGenerateResponse generateQuestionByAI(
+            @RequestBody QuestionAiGenerateRequest request) {
+
+        return questionService.generateQuestionByAI(request);
+    }
+
 
 }
