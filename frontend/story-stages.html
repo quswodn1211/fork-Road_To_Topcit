@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TOPCIT Quest - 스테이지 선택</title>
+  <style>
+    
+    /* ========================================
+       헤더 (main.html 스타일)
+       ======================================== */
+    header {
+      display: flex;
+      align-items: center;
+      padding: 10px 50px;
+      background: white;
+    }
+
+    header a, header a:visited {
+      margin: 0 15px;
+      text-decoration: none;
+      color: #333; 
+      font-size: 17px;
+    }
+    
+    .user-links a, .user-links a:visited {
+      color: #777;
+      font-size: 15px;
+    }
+
+    nav {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    @media (max-width: 900px) {
+      header {
+        flex-wrap: wrap; 
+        padding: 10px 20px; 
+      }
+
+      .logo-img {
+        width: 100%; 
+        text-align: center; 
+        margin-bottom: 10px;
+      }
+
+      nav {
+        width: 100%; 
+        text-align: center;
+        margin: 10px 0; 
+      }
+
+      header a {
+        display: inline-block;
+        margin: 5px 10px;
+      }
+
+      .user-links {
+        width: 100%; 
+        text-align: center;
+      }
+    }
+/* ========================================
+       메인 컨테이너
+       ======================================== */
+    .main-container {
+      flex: 1;
+      max-width: 100%;
+      margin: 0;
+      padding: 0.5rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ========================================
+       스테이지 프레임
+       ======================================== */
+    .stage-frame {
+      flex: 1;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      padding: 1.5rem;
+      margin-bottom: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .world-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .world-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #2c3e50;
+      margin-bottom: 0.3rem;
+    }
+
+    .world-subtitle {
+      color: #6b7280;
+      font-size: 1rem;
+    }
+
+    /* ========================================
+       게임 맵 스타일 (실제 RPG 맵)
+       ======================================== */
+    .game-map-container {
+      flex: 1;
+      position: relative;
+      background: #1a1a1a;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.5);
+      min-height: 500px;
+    }
+
+    /* 맵 배경 이미지 */
+    .map-background {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* 경로 오버레이 (SVG) */
+    .path-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .route-path {
+      fill: none;
+      stroke: #ff4757;
+      stroke-width: 6;
+      stroke-dasharray: 15, 10;
+      stroke-linecap: round;
+      opacity: 0.8;
+      animation: dash 30s linear infinite;
+    }
+
+    .route-path.cleared {
+      stroke: #ffd93d;
+      stroke-width: 8;
+      animation: dash 30s linear infinite, glow-pulse 2s ease-in-out infinite;
+      filter: drop-shadow(0 0 10px #ffd93d);
+    }
+
+    @keyframes dash {
+      to {
+        stroke-dashoffset: -1000;
+      }
+    }
+
+    @keyframes glow-pulse {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 1; }
+    }
+
+    /* 스테이지 노드 (맵 위에 배치) */
+    .stage-marker {
+      position: absolute;
+      z-index: 10;
+      cursor: pointer;
+      transform: translate(-50%, -50%);
+      transition: all 0.3s ease;
+    }
+
+    .stage-marker:hover {
+      transform: translate(-50%, -50%) scale(1.15);
+    }
+
+    .stage-marker.locked:hover {
+      transform: translate(-50%, -50%);
+    }
+
+    /* 스테이지 버튼 */
+    .stage-button {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 4px solid #fff;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+      transition: all 0.3s;
+    }
+
+    .stage-button:hover {
+      box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+      transform: translateY(-3px);
+    }
+
+    .stage-button.locked {
+      background: linear-gradient(135deg, #636e72, #2d3436);
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .stage-button.locked:hover {
+      transform: none;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .stage-button.cleared {
+      background: linear-gradient(135deg, #43e97b, #38f9d7);
+      animation: success-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes success-pulse {
+      0%, 100% { box-shadow: 0 8px 25px rgba(67, 233, 123, 0.4); }
+      50% { box-shadow: 0 12px 35px rgba(67, 233, 123, 0.7); }
+    }
+
+    .stage-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .stage-number {
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: white;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    /* 스테이지 라벨 */
+    .stage-label {
+      position: absolute;
+      bottom: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    /* 시작 지점 마커 */
+    .start-marker {
+      position: absolute;
+      z-index: 8;
+      transform: translate(-50%, -50%);
+    }
+
+    .start-icon {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #ffd93d, #f9ca24);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      box-shadow: 0 8px 20px rgba(249, 202, 36, 0.5);
+      border: 4px solid white;
+      animation: start-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes start-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    /* 다음 월드 게이트 */
+    .next-world-gate {
+      position: absolute;
+      z-index: 8;
+      transform: translate(-50%, -50%);
+    }
+
+    .gate-button {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, #f093fb, #f5576c);
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(240, 147, 251, 0.5);
+      border: 5px solid white;
+      transition: all 0.3s;
+      text-decoration: none;
+      color: white;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .gate-button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 15px 40px rgba(240, 147, 251, 0.7);
+    }
+
+    .gate-button.locked {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+    }
+
+    .gate-button.locked:hover {
+      transform: none;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .gate-icon {
+      font-size: 3rem;
+    }
+
+    .gate-text {
+      font-size: 0.75rem;
+      margin-top: 0.2rem;
+    }
+
+    /* ========================================
+       반응형
+       ======================================== */
+    @media (max-width: 768px) {
+      .stage-button {
+        width: 60px;
+        height: 60px;
+      }
+
+      .stage-icon {
+        font-size: 2rem;
+      }
+
+      .start-icon {
+        width: 45px;
+        height: 45px;
+        font-size: 2rem;
+      }
+
+      .gate-button {
+        width: 75px;
+        height: 75px;
+      }
+
+      .gate-icon {
+        font-size: 2.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+        <div class="logo-img">
+          <img src="images/logo.png" alt="로고" style="height:50px; cursor: pointer;" onclick="window.location.href = 'main.html';"> 
+        </div>
+        <nav>
+            <a href="challenge.html">스킬 챌린지</a>
+            <a href="guide.html">성장 가이드</a>
+            <a href="story.html">스토리 모드</a>
+        </nav>
+        <div class="user-links">
+            <a href="login.html">로그인</a>
+            <a href="signup.html">회원가입</a>
+        </div>
+    </header>
+
+  <!-- 본문 -->
+  <main class="main-container">
+    <div class="stage-frame">
+      <div class="world-header">
+        <h1 class="world-title" id="world-title">월드 1 - 기술 경영 이해</h1>
+        <p class="world-subtitle" id="world-subtitle">맵을 탐험하며 스테이지에 도전하세요!</p>
+      </div>
+
+      <!-- 게임 맵 -->
+      <div class="game-map-container">
+        <!-- 배경 이미지 -->
+        <img src="world-map-sample.png" class="map-background" id="map-background" alt="World Map">
+        
+        <!-- 경로 오버레이 (SVG) -->
+        <svg class="path-overlay" viewBox="0 0 1000 700" preserveAspectRatio="none">
+          <!-- 경로선: 시작 → 스테이지1 → 스테이지2 → 스테이지3 → 다음월드(성 왼쪽) -->
+          <path id="route-path" class="route-path" 
+                d="M 80,650 L 240,640 L 510,640 L 800,485 L 880,130" />
+        </svg>
+
+        <!-- 시작 지점 (왼쪽 하단 - 캐릭터 위치) -->
+        <div class="start-marker" style="left: 8%; bottom: 8%;">
+          <div class="start-icon">👤</div>
+        </div>
+
+        <!-- 스테이지 1 (중앙 하단 - 첫 번째 파란 동그라미) -->
+        <div class="stage-marker" id="stage-1" data-stage="1" 
+             style="left: 24%; bottom: 11%;">
+          <div class="stage-button">
+            <div class="stage-icon">⚔️</div>
+            <div class="stage-number">Stage 1</div>
+          </div>
+          <div class="stage-label">스테이지 1</div>
+        </div>
+
+        <!-- 스테이지 2 (중앙 하단 - 두 번째 파란 동그라미) -->
+        <div class="stage-marker locked" id="stage-2" data-stage="2" 
+             style="left: 51%; bottom: 11%;">
+          <div class="stage-button locked">
+            <div class="stage-icon">🔒</div>
+            <div class="stage-number">Stage 2</div>
+          </div>
+          <div class="stage-label">스테이지 2</div>
+        </div>
+
+        <!-- 스테이지 3 (오른쪽 하단 - 세 번째 파란 동그라미 바로 위) -->
+        <div class="stage-marker locked" id="stage-3" data-stage="3" 
+             style="left: 80%; bottom: 35%;">
+          <div class="stage-button locked">
+            <div class="stage-icon">🔒</div>
+            <div class="stage-number">Stage 3</div>
+          </div>
+          <div class="stage-label">스테이지 3</div>
+        </div>
+
+        <!-- 다음 월드 게이트 (성 바로 왼쪽) -->
+        <div class="next-world-gate" style="right: 5%; top: 16%;">
+          <a href="#" class="gate-button locked" id="next-world-gate">
+            <div class="gate-icon">🏰</div>
+            <div class="gate-text">다음<br>월드</div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // URL에서 월드 번호 가져오기
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentWorld = parseInt(urlParams.get('world')) || 1;
+
+    // 월드 정보
+    const worldInfo = {
+      1: { name: '기술 경영 이해', icon: '💻' },
+      2: { name: '소프트웨어 개발', icon: '💾' },
+      3: { name: '데이터베이스', icon: '🗄️' },
+      4: { name: '네트워크', icon: '🌐' },
+      5: { name: '정보보안', icon: '🔐' },
+      6: { name: 'IT 프로젝트 관리', icon: '📊' }
+    };
+
+    // 월드 제목 설정
+    const worldData = worldInfo[currentWorld];
+    document.getElementById('world-title').textContent = 
+      `${worldData.icon} 월드 ${currentWorld} - ${worldData.name}`;
+
+    // 진행 상황 불러오기
+    function loadProgress() {
+      const saved = localStorage.getItem('storyProgress');
+      if (saved) return JSON.parse(saved);
+      return {
+        worlds: {
+          1: { unlocked: true, stagesCleared: 0, stages: { 1: false, 2: false, 3: false } },
+          2: { unlocked: false, stagesCleared: 0, stages: { 1: false, 2: false, 3: false } },
+          3: { unlocked: false, stagesCleared: 0, stages: { 1: false, 2: false, 3: false } },
+          4: { unlocked: false, stagesCleared: 0, stages: { 1: false, 2: false, 3: false } },
+          5: { unlocked: false, stagesCleared: 0, stages: { 1: false, 2: false, 3: false } },
+          6: { unlocked: false, stagesCleared: 0, stages: { 1: false, 2: false, 3: false } }
+        }
+      };
+    }
+
+    const progress = loadProgress();
+    const currentWorldData = progress.worlds[currentWorld];
+
+    // 스테이지 상태 적용
+    for (let i = 1; i <= 3; i++) {
+      const stageMarker = document.getElementById(`stage-${i}`);
+      const stageButton = stageMarker.querySelector('.stage-button');
+      const stageIcon = stageMarker.querySelector('.stage-icon');
+      
+      // 스테이지 해금 상태 확인
+      const isUnlocked = i === 1 || currentWorldData.stages[i - 1];
+      
+      if (isUnlocked) {
+        stageMarker.classList.remove('locked');
+        stageButton.classList.remove('locked');
+        stageIcon.textContent = ['⚔️', '🗡️', '🏆'][i - 1];
+      }
+
+      // 클리어 상태
+      if (currentWorldData.stages[i]) {
+        stageButton.classList.add('cleared');
+        stageIcon.textContent = '✅';
+      }
+    }
+
+    // 경로선 애니메이션 (클리어한 구간만 빛나게)
+    const routePath = document.getElementById('route-path');
+    if (currentWorldData.stagesCleared > 0) {
+      routePath.classList.add('cleared');
+    }
+
+    // 다음 월드 게이트 활성화
+    const nextWorldGate = document.getElementById('next-world-gate');
+    if (currentWorldData.stagesCleared === 3) {
+      nextWorldGate.classList.remove('locked');
+      if (currentWorld < 6) {
+        nextWorldGate.href = `story-stages.html?world=${currentWorld + 1}`;
+      } else {
+        nextWorldGate.href = `story-mode.html`;
+        nextWorldGate.querySelector('.gate-text').innerHTML = '완료!<br>🎉';
+      }
+    }
+
+    // 스테이지 클릭 이벤트
+    document.querySelectorAll('.stage-marker').forEach(marker => {
+      marker.addEventListener('click', () => {
+        const stageNum = marker.dataset.stage;
+        const isLocked = marker.classList.contains('locked');
+
+        if (isLocked) {
+          alert('이전 스테이지를 먼저 클리어하세요! 🔒');
+          return;
+        }
+
+        // 클릭 애니메이션
+        marker.style.transform = 'translate(-50%, -50%) scale(0.9)';
+        setTimeout(() => {
+          marker.style.transform = 'translate(-50%, -50%)';
+        }, 100);
+
+        // 문제 풀이 화면으로 이동
+        setTimeout(() => {
+          window.location.href = `problem-solving.html?mode=story&world=${currentWorld}&stage=${stageNum}`;
+        }, 200);
+      });
+    });
+  </script>
+</body>
+</html>
