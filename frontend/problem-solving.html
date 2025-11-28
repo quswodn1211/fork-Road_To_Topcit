@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOPCIT 성장 가이드 - 문제 풀이</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 헤더 -->
+    <!-- 헤더 -->
+    <header>
+        <div class="logo-img">
+          <img src="images/logo.png" alt="로고" style="height:50px; cursor: pointer;" onclick="window.location.href = 'main.html';">
+        </div>
+        <nav>
+            <a href="challenge.html">스킬 챌린지</a>
+            <a href="guide.html">성장 가이드</a>
+            <a href="story.html">스토리 모드</a>
+        </nav>
+        <div class="user-links">
+            <a href="login.html">로그인</a>
+            <a href="signup.html">회원가입</a>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- 게임 섹션 -->
+        <div class="game-section">
+            <div class="problem-header">
+                <h2 id="problem-title">Solve the equation:</h2>
+                <div class="problem-equation" id="problem-content">x² - 3x + 2 = 0</div>
+            </div>
+
+            <!-- 게임 화면 영역 -->
+            <div class="game-world">
+                <!-- GIF 배경 -->
+                <img src="combined_sky.gif" class="game-gif-full" id="game-gif" alt="게임 화면">
+                
+                <!-- 레벨 표시 (왼쪽 하단) -->
+                <div class="level-display">
+                    <div class="level-box">
+                        <span class="level-label">LV</span>
+                        <span class="level-value" id="player-level">5</span>
+                    </div>
+                </div>
+                
+                <!-- HP 박스 (스토리모드 전용 - 왼쪽 상단) -->
+                <div class="hp-box" id="hp-box" style="display: none;">
+                    <span class="hp-label">HP</span>
+                    <div class="hp-hearts" id="hp-hearts">
+                        <span class="heart">❤️</span>
+                        <span class="heart">❤️</span>
+                        <span class="heart">❤️</span>
+                    </div>
+                </div>
+                
+                <!-- 경험치 획득 화면 (정답 시) -->
+                <div class="exp-gain-overlay" id="exp-gain-overlay">
+                    <div class="exp-gain-animation">
+                        <div class="exp-text">EXP</div>
+                        <div class="exp-amount" id="exp-amount">+30</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 문제 및 답안 작성 영역 -->
+        <div class="problem-section">
+            <div class="problem-answer-container">
+                <!-- 문제 설명 -->
+                <div class="problem-box">
+                    <div class="box-header">
+                        <span class="box-icon">📝</span>
+                        <h3>문제</h3>
+                    </div>
+                    <div class="box-content">
+                        <p id="problem-description">위의 이차방정식을 풀어보세요. 근의 공식을 사용하거나 인수분해를 통해 해를 구할 수 있습니다.</p>
+                    </div>
+                </div>
+
+                <!-- 답안 작성 -->
+                <div class="answer-box">
+                    <div class="box-header">
+                        <span class="box-icon">✏️</span>
+                        <h3>답안 작성</h3>
+                    </div>
+                    <div class="box-content">
+                        <textarea 
+                            id="answer-input" 
+                            placeholder="답안을 입력하세요..."
+                            rows="5"
+                        ></textarea>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="submitAnswer()">제출하기</button>
+                            <button class="btn btn-secondary" onclick="getHint()">힌트 보기</button>
+                            <button class="btn btn-tertiary" onclick="skipProblem()">건너뛰기</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 오답 피드백 영역 (하단) -->
+            <div class="wrong-feedback-section" id="wrong-feedback-section">
+                <div class="wrong-feedback-header">
+                    <span class="wrong-icon">❌</span>
+                    <h3>틀린 문제 분석</h3>
+                </div>
+                <div class="wrong-feedback-body">
+                    <div class="feedback-row">
+                        <span class="feedback-label">단원:</span>
+                        <span class="feedback-value" id="feedback-chapter">-</span>
+                    </div>
+                    <div class="feedback-row">
+                        <span class="feedback-label">내용:</span>
+                        <span class="feedback-value" id="feedback-topic">-</span>
+                    </div>
+                    <div class="feedback-detail-box">
+                        <div class="feedback-detail-title">💡 상세 설명</div>
+                        <div class="feedback-detail-content" id="feedback-detail">
+                            백엔드에서 제공할 피드백이 여기에 표시됩니다.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

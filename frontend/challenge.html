@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Road To TOPCIT</title>
+    <style>
+        
+        /* --- 기본 설정 --- */
+       body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- 상단바 스타일 --- */
+        header {
+                    display: flex;
+                    align-items: center;
+                    padding: 10px 50px;
+                    background: rgba(255, 255, 255, 1); 
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    z-index: 10;
+                }
+
+        header a, header a:visited {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #333; 
+            font-size: 17px;
+        }
+        
+        .user-links a, .user-links a:visited {
+            color: #777;
+            font-size: 15px;
+        }
+
+        nav {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* --- HERO 영역 스타일 (전체 배경) --- */
+        .hero {
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            min-height: 100vh;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.16);
+            z-index: 1; 
+        }
+        
+        .hero-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; 
+            z-index: 0; 
+        }
+
+        /* --- 중앙 콘텐츠 박스 스타일 --- */
+        .content-box {
+            background-color: white;
+            width: 90%;
+            max-width: 1200px; 
+            height: 75vh;
+            max-height: 720px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative; 
+            z-index: 2;
+            padding: 40px; 
+            padding-bottom: 100px;
+            box-sizing: border-box; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+            justify-content: flex-start;
+        }
+        
+        .skill-card-flex-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            max-width: 1500px; 
+            flex-grow: 1; 
+            padding: 0;
+        }
+
+        /* 개별 스킬 카드 버튼 스타일 */
+        .skill-card-item {
+            width: calc(33.33% - 15px); 
+            margin: 0 7.5px;
+            margin-top: 19px;
+            height: 500px; 
+            background: #ffc300; 
+            color: #391e1d; 
+            border: none;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(255, 195, 0, 0.3);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            user-select: none; 
+            
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; 
+            position: relative;
+            text-align: center;
+        }
+        
+        /* 카드 내부 요소 스타일 */
+        .card-icon { 
+            font-size: 90px; 
+            margin-bottom: 30px; 
+        }
+        .card-title { 
+            font-size: 20px; 
+            font-weight: bold; 
+        }
+        
+        /* 카드 뱃지 스타일 (숫자) */
+        .card-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #cc9900; 
+            color: white;
+            border-radius: 50%;
+            width: 28px; 
+            height: 28px;
+            line-height: 28px;
+            font-size: 16px;
+        }
+
+        /* 툴팁(라벨) 스타일 */
+        .card-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-10px);
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 툴팁 화살표 */
+        .card-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.9);
+        }
+
+        /* 호버 시 툴팁 표시 */
+        .skill-card-item:hover .card-tooltip {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-5px);
+        }
+
+        /* 버튼 호버 스타일 */
+        .skill-card-item:not(.selected):hover {
+            box-shadow: 0 6px 15px rgba(255, 195, 0, 0.6); 
+            transform: translateY(-3px);
+            background: #ffd700; 
+        }
+        
+        /* 버튼 선택(고정) 상태 스타일 */
+        .skill-card-item.selected {
+            background: #e5b000; 
+            border: none;
+            transform: translateY(1px); 
+            box-shadow: 0 5px 10px rgba(255, 195, 0, 0.7); 
+        }
+        
+        /* --- Start 버튼 스타일 --- */
+        .start-button {
+            background: #ffc300; 
+            color: #391e1d; 
+            border: none;
+            cursor: not-allowed; 
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0px 4px 10px rgba(255, 195, 0, 0.3);
+            
+            position: absolute; 
+            bottom: 40px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            width: 90%; 
+            max-width: 400px; 
+            padding: 15px 0;
+            font-size: 24px; 
+            font-weight: bold;
+            z-index: 5;
+            
+            opacity: 0.3; 
+            margin-bottom: 5px; 
+        }
+
+        /* Start 버튼 활성화 상태 */
+        .start-button.active {
+            opacity: 1;
+            cursor: pointer;
+        }
+        
+        .start-button.active:hover {
+            transform: translateX(-50%) scale(1.05);
+            box-shadow: 0px 6px 15px rgba(255, 195, 0, 0.5);
+        }
+
+        /* --- 미디어 쿼리 (화면 크기 대응) --- */
+        @media (max-width: 900px) {
+            .skill-card-flex-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .content-box {
+                width: 95%;
+                height: 65vh;
+            }
+            .skill-card-flex-container {
+                flex-direction: column;
+                flex-wrap: nowrap;
+                align-items: stretch;
+                padding: 10px;
+            }
+            .skill-card-item {
+                height: 120px;
+                width: auto;
+                margin: 5px 0;
+            }
+            .card-icon {
+                font-size: 36px;
+            }
+            .card-title {
+                font-size: 20px;
+            }
+            .start-button {
+                font-size: 20px;
+                padding: 12px 0;
+            }
+        }
+        
+        /* --- 하단바 스타일 --- */
+        footer {
+            background-color: #111; 
+            color: #ddd; 
+            padding: 40px 50px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            max-width: 1200px; 
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .footer-column h3 {
+            font-size: 16px;
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .footer-column a {
+            display: block;
+            color: #ddd;
+            text-decoration: none;
+            margin-bottom: 5px;
+        }
+
+        .footer-column a:hover {
+            color: #fff;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #333;
+            margin-top: 30px;
+            padding-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-img">
+          <img src="images/logo.png" alt="로고" style="height:50px; cursor: pointer;" onclick="window.location.href = 'main.html';"> 
+        </div>
+        <nav>
+            <a href="challenge.html">스킬 챌린지</a>
+            <a href="guide.html">성장 가이드</a>
+            <a href="story.html">스토리 모드</a>
+        </nav>
+        <div class="user-links">
+            <a href="login.html">로그인</a>
+            <a href="signup.html">회원가입</a>
+        </div>
+    </header>
+
+    <section class="hero">
+      <img src="images/background.jpg" alt="메인 배경" class="hero-img">
+      <div class="content-box">
+          
+          <div class="skill-card-flex-container">
+              
+              <button class="skill-card-item" data-area="1">
+                  <div class="card-tooltip">기술 혁신과 경영 전략의 융합</div>
+                  <div class="card-badge">1</div>
+                  <div class="card-icon">💡</div>
+                  <div class="card-title">기술 경영 이해</div>
+              </button>
+              
+              <button class="skill-card-item" data-area="2">
+                  <div class="card-tooltip">코딩부터 배포까지 전 과정 마스터</div>
+                  <div class="card-badge">2</div>
+                  <div class="card-icon">👨‍💻</div>
+                  <div class="card-title">소프트웨어 개발</div>
+              </button>
+              
+              <button class="skill-card-item" data-area="3">
+                  <div class="card-tooltip">데이터 설계와 효율적 관리 기법</div>
+                  <div class="card-badge">3</div>
+                  <div class="card-icon">🗄️</div>
+                  <div class="card-title">데이터베이스</div>
+              </button>
+              
+              <button class="skill-card-item" data-area="4">
+                  <div class="card-tooltip">통신 프로토콜과 네트워크 구축</div>
+                  <div class="card-badge">4</div>
+                  <div class="card-icon">🌐</div>
+                  <div class="card-title">네트워크</div>
+              </button>
+              
+              <button class="skill-card-item" data-area="5">
+                  <div class="card-tooltip">사이버 위협 대응 및 보안 전략</div>
+                  <div class="card-badge">5</div>
+                  <div class="card-icon">🛡️</div>
+                  <div class="card-title">정보보안</div>
+              </button>
+              
+              <button class="skill-card-item" data-area="6">
+                  <div class="card-tooltip">프로젝트 기획부터 완료까지 총괄 관리</div>
+                  <div class="card-badge">6</div>
+                  <div class="card-icon">📈</div>
+                  <div class="card-title">IT 프로젝트 관리</div>
+              </button>
+          </div>
+          
+          <button class="start-button" id="start-button">항목을 선택해 주세요</button>
+      </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <div class="footer-logo">RTT</div>
+                <a href="#">이용약관</a>
+                <a href="#">공지사항</a>
+            </div>
+
+            <div class="footer-column">
+                <h3>서비스</h3>
+                <a href="challenge.html">스킬 챌린지</a>
+                <a href="guide.html">성장 가이드</a>
+                <a href="story.html">스토리 모드</a>
+            </div>
+
+            <div class="footer-column">
+                <h3>지원</h3>
+                <a href="#">FAQ / 문의</a>
+                <a href="#">사이트맵</a>
+            </div>
+            
+            <div class="footer-column">
+                <h3>RTT 소식 받기</h3>
+                <p>최신 업데이트 소식을 받아보세요.</p>
+                <input type="text" placeholder="이메일 주소 입력" style="padding: 8px; border-radius: 4px; border: none; width: 150px;">
+                <button style="padding: 8px 15px; background: #ffc300; border: none; border-radius: 4px; cursor: pointer; color: #333; font-weight: bold;">구독</button>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            ROAD TO TOPCIT&nbsp;&nbsp;|&nbsp;&nbsp;오픈소스SW 프로젝트
+        </div>
+    </footer>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const skillButtons = document.querySelectorAll('.skill-card-item');
+            const startButton = document.getElementById('start-button');
+            let selectedArea = null; 
+
+            skillButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    skillButtons.forEach(btn => btn.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedArea = this.getAttribute('data-area');
+                    
+                    startButton.classList.add('active');
+                    startButton.textContent = `'${this.querySelector('.card-title').textContent}' 챌린지 시작`;
+                });
+            });
+
+            startButton.addEventListener("click", function () {
+                if (selectedArea && startButton.classList.contains('active')) {
+                    // 자유모드로 problem-solving.html 이동 (area 파라미터 전달)
+                    window.location.href = `problem-solving.html?area=${selectedArea}`;
+                } else {
+                    alert("먼저 챌린지 항목을 선택해 주세요.");
+                }
+            });
+        });
+    </script>
+</body>
+</html>

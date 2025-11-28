@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Road To TOPCIT - Chatbot</title>
+    <style>
+        
+        /* --- 기본 설정 --- */
+       body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            height: 100%; 
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- 상단바 스타일 --- */
+        header {
+            display: flex;
+            align-items: center;
+            padding: 10px 50px;
+            background: rgba(255, 255, 255, 1); 
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+
+        header a, header a:visited {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #333; 
+            font-size: 17px;
+        }
+        
+        .user-links a, .user-links a:visited {
+            color: #777;
+            font-size: 15px;
+        }
+
+        nav {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* --- HERO 영역 스타일 (전체 배경) --- */
+        .hero {
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            min-height: 100vh;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.16);
+            z-index: 1; 
+        }
+        
+        .hero-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; 
+            z-index: 0; 
+        }
+
+        /* --- 중앙 콘텐츠 박스 스타일 --- */
+        .content-box {
+            background-color: white;
+            width: 90%;
+            max-width: 1000px; 
+            height: 75vh;
+            max-height: 750px;
+            border-radius: 10px; /* 둥근 모서리 */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative; 
+            z-index: 2;
+            padding: 0; 
+            padding-bottom: 0;
+            box-sizing: border-box; 
+            display: block; 
+        }
+        
+        /* 챗봇 창 전체 스타일 */
+        .chat-window {
+            display: flex;
+            flex-direction: column;
+            height: 100%; 
+            padding: 0 0 70px 0; 
+            box-sizing: border-box;
+        }
+
+        /* 챗봇 인사말 영역 */
+        .chat-greeting {
+            padding: 30px 20px 20px 20px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .chat-greeting h3 {
+            font-size: 20px;
+            margin: 0;
+            color: #333;
+        }
+
+        /* 퀵 리플라이 버튼 컨테이너 */
+        .quick-replies {
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* 퀵 리플라이 버튼 스타일 */
+        .reply-button {
+            background: #f0f0f0;
+            border: none;
+            border-radius: 20px;
+            padding: 12px 18px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: background 0.2s;
+            user-select: none;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .reply-button:hover {
+            background: #e0e0e0;
+        }
+        
+        /* 채팅 로그 영역 */
+        .chat-log {
+            flex-grow: 1; 
+            overflow-y: auto; 
+            padding: 20px;
+        }
+
+        /* 메시지 스타일 */
+        .message-box {
+            margin-bottom: 15px;
+            max-width: 80%;
+        }
+
+        .user-message {
+            text-align: right;
+            margin-left: auto;
+        }
+        .user-message p {
+            background: #ffe5ec; 
+            color: #333;
+            border-radius: 15px 15px 0 15px;
+            padding: 10px 15px;
+            display: inline-block;
+        }
+
+        .bot-message {
+            text-align: left;
+        }
+        .bot-message p {
+            background: #f0f0f0; 
+            color: #333;
+            border-radius: 15px 15px 15px 0;
+            padding: 10px 15px;
+            display: inline-block;
+        }
+
+        /* 입력창 컨테이너 */
+        .chat-input-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 10px 20px;
+            background: white;
+            border-top: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            /* [수정] 아래쪽 모서리를 둥글게 만들어 content-box와 일치시킵니다. */
+            border-radius: 0 0 10px 10px; 
+        }
+        
+        .chat-input-container input {
+            flex-grow: 1;
+            border: none;
+            padding: 10px;
+            font-size: 16px;
+            outline: none;
+            cursor: text; 
+        }
+
+        /* --- 미디어 쿼리 --- */
+        @media (max-width: 900px) {
+            .content-box {
+                max-width: 95%;
+            }
+        }
+        
+        /* --- 하단바 스타일 --- */
+        footer {
+            background-color: #111; 
+            color: #ddd; 
+            padding: 40px 50px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            max-width: 1200px; 
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .footer-column h3 {
+            font-size: 16px;
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .footer-column a {
+            display: block;
+            color: #ddd;
+            text-decoration: none;
+            margin-bottom: 5px;
+        }
+
+        .footer-column a:hover {
+            color: #fff;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #333;
+            margin-top: 30px;
+            padding-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-img">
+          <img src="images/logo.png" alt="로고" style="height:50px; cursor: pointer;" onclick="window.location.href = 'main.html';"> 
+        </div>
+        <nav>
+            <a href="challenge.html">스킬 챌린지</a>
+            <a href="guide.html">성장 가이드</a>
+            <a href="story.html">스토리 모드</a>
+        </nav>
+        <div class="user-links">
+            <a href="login.html">로그인</a>
+            <a href="signup.html">회원가입</a>
+        </div>
+    </header>
+
+    <section class="hero">
+      <img src="images/background.jpg" alt="메인 배경" class="hero-img">
+      
+      <div class="content-box">
+          <div class="chat-window">
+              
+              <div class="chat-greeting">
+                  <h3>TOPCIT 챗봇</h3>
+                  <p style="color:#555; margin-top:5px;">무엇이 궁금하신가요? 아래 버튼을 눌러보세요.</p>
+              </div>
+
+              <div class="quick-replies" id="quick-replies">
+                  <button class="reply-button" data-q="q1">TOPCIT 시험은 무엇인가요?</button>
+                  <button class="reply-button" data-q="q2">시험 범위가 궁금해요.</button>
+                  <button class="reply-button" data-q="q3">기출문제는 어디서 보나요?</button>
+                  <button class="reply-button" data-q="q4">소프트웨어 개발 분야가 어려워요.</button>
+              </div>
+
+              <div class="chat-log" id="chat-log">
+                  <div class="message-box bot-message">
+                      <p>안녕하세요! TOPCIT 관련 궁금한 점을 해결해 드립니다.</p>
+                  </div>
+              </div>
+
+              <div class="chat-input-container">
+                  <input type="text" id="user-input" placeholder="챗봇에 무엇이든 물어보세요!">
+              </div>
+
+          </div>
+      </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <div class="footer-logo">RTT</div>
+                <a href="#">이용약관</a>
+                <a href="#">공지사항</a>
+            </div>
+
+            <div class="footer-column">
+                <h3>서비스</h3>
+                <a href="challenge.html">스킬 챌린지</a>
+                <a href="guide.html">성장 가이드</a>
+                <a href="story.html">스토리 모드</a>
+            </div>
+
+            <div class="footer-column">
+                <h3>지원</h3>
+                <a href="#">FAQ / 문의</a>
+                <a href="#">사이트맵</a>
+            </div>
+            
+            <div class="footer-column">
+                <h3>RTT 소식 받기</h3>
+                <p>최신 업데이트 소식을 받아보세요.</p>
+                <input type="text" placeholder="이메일 주소 입력" style="padding: 8px; border-radius: 4px; border: none; width: 150px;">
+                <button style="padding: 8px 15px; background: #ffc300; border: none; border-radius: 4px; cursor: pointer; color: #333; font-weight: bold;">구독</button>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            ROAD TO TOPCIT&nbsp;&nbsp;|&nbsp;&nbsp;오픈소스SW 프로젝트
+        </div>
+    </footer>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const chatLog = document.getElementById('chat-log');
+            const quickReplies = document.querySelectorAll('.reply-button');
+            const userInput = document.getElementById('user-input'); 
+
+            // 미리 정의된 TOPCIT 답변 데이터
+            const responses = {
+                q1: "TOPCIT(Test of Practical Competency in IT)은 소프트웨어 산업 현장에서 요구되는 실무 능력을 평가하는 시험입니다. IT 역량을 측정하여 인재 채용 및 교육에 활용됩니다.",
+                q2: "TOPCIT의 시험 범위는 크게 세 영역입니다: 1. 비즈니스 역량 (기술 이해 및 분석), 2. 기술 역량 (SW 개발, 데이터베이스, 네트워크 등), 3. 통합 역량 (IT 프로젝트 관리).",
+                q3: "TOPCIT 공식 홈페이지(www.topcit.or.kr)의 자료실에서 과거 기출문제와 출제 경향을 확인하실 수 있습니다. 이를 통해 시험 유형을 파악하는 것이 중요합니다.",
+                q4: "소프트웨어 개발 분야는 저희 사이트의 '스킬 챌린지'와 '성장 가이드'를 통해 기초 개념부터 실습까지 단계별 학습 자료를 제공하고 있습니다. 차근차근 따라 해보세요!"
+            };
+
+            // 메시지를 채팅 로그에 추가하는 함수
+            function appendMessage(sender, text) {
+                const messageBox = document.createElement('div');
+                messageBox.classList.add('message-box', sender === 'user' ? 'user-message' : 'bot-message');
+                messageBox.innerHTML = `<p>${text}</p>`;
+                chatLog.appendChild(messageBox);
+                
+                chatLog.scrollTop = chatLog.scrollHeight;
+            }
+
+            // 퀵 리플라이 버튼 클릭 이벤트 처리
+            quickReplies.forEach(button => {
+                button.addEventListener('click', function () {
+                    const questionText = this.textContent;
+                    const questionId = this.getAttribute('data-q');
+                    
+                    appendMessage('user', questionText);
+                    
+                    setTimeout(() => {
+                        const botResponse = responses[questionId] || "죄송합니다. 해당 질문에 대한 정보를 찾을 수 없습니다.";
+                        appendMessage('bot', botResponse);
+                    }, 500); 
+                });
+            });
+
+            // 입력창 엔터 키 이벤트 처리 및 전송 로직
+            userInput.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    const userText = userInput.value.trim();
+                    if (userText) {
+                        appendMessage('user', userText); 
+                        userInput.value = ''; 
+                        
+                        setTimeout(() => {
+                            const mockResponse = `'${userText}'에 대한 답변을 데이터베이스에서 검색 중입니다. (기능 구현 예정)`;
+                            appendMessage('bot', mockResponse);
+                        }, 800); 
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

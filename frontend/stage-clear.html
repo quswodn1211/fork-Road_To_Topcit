@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TOPCIT Quest - 스테이지 클리어!</title>
+  <style>
+    /* ========================================
+       전역 스타일
+       ======================================== */
+    * { 
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    html, body { 
+      height: 100%;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    /* ========================================
+       클리어 카드
+       ======================================== */
+    .clear-card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 3rem 2rem;
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+      animation: slideUp 0.6s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .clear-icon {
+      font-size: 8rem;
+      margin-bottom: 1rem;
+      animation: bounce 1s ease-in-out;
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-30px); }
+      60% { transform: translateY(-15px); }
+    }
+
+    .clear-title {
+      font-size: 3rem;
+      font-weight: 900;
+      color: #43e97b;
+      margin-bottom: 0.5rem;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .clear-subtitle {
+      font-size: 1.3rem;
+      color: #6b7280;
+      margin-bottom: 2rem;
+    }
+
+    /* ========================================
+       결과 정보
+       ======================================== */
+    .result-info {
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      border-radius: 15px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 2px solid #dee2e6;
+    }
+
+    .result-row:last-child {
+      border-bottom: none;
+    }
+
+    .result-label {
+      font-size: 1.2rem;
+      color: #495057;
+      font-weight: 600;
+    }
+
+    .result-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+
+    .result-value.exp {
+      color: #43e97b;
+      font-size: 2rem;
+    }
+
+    /* ========================================
+       버튼
+       ======================================== */
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 1rem;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 28px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #43e97b, #38f9d7);
+      color: white;
+      box-shadow: 0 8px 20px rgba(67, 233, 123, 0.3);
+    }
+
+    .btn-secondary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 28px rgba(67, 233, 123, 0.4);
+    }
+
+    /* ========================================
+       반응형
+       ======================================== */
+    @media (max-width: 768px) {
+      .clear-icon {
+        font-size: 5rem;
+      }
+
+      .clear-title {
+        font-size: 2rem;
+      }
+
+      .clear-subtitle {
+        font-size: 1rem;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="clear-card">
+    <div class="clear-icon">🏆</div>
+    <h1 class="clear-title">STAGE CLEAR!</h1>
+    <p class="clear-subtitle" id="stage-subtitle">스테이지 1 클리어</p>
+
+    <!-- 결과 정보 -->
+    <div class="result-info">
+      <div class="result-row">
+        <span class="result-label">정답 문제 수</span>
+        <span class="result-value" id="correct-count">5/5</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">획득 경험치</span>
+        <span class="result-value exp" id="total-exp">+150 EXP</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">현재 레벨</span>
+        <span class="result-value" id="current-level">LV 6</span>
+      </div>
+    </div>
+
+    <!-- 버튼 -->
+    <div class="button-group">
+      <a href="#" class="btn btn-secondary" id="next-stage-btn">다음 스테이지 ➡️</a>
+      <a href="#" class="btn btn-primary" id="back-to-world-btn">월드 선택 🗺️</a>
+    </div>
+  </div>
+
+  <script>
+    // URL 파라미터 가져오기
+    const urlParams = new URLSearchParams(window.location.search);
+    const world = parseInt(urlParams.get('world')) || 1;
+    const stage = parseInt(urlParams.get('stage')) || 1;
+    const correctCount = parseInt(urlParams.get('correct')) || 5;
+    const totalExp = parseInt(urlParams.get('exp')) || 150;
+
+    // 화면 업데이트
+    document.getElementById('stage-subtitle').textContent = 
+      `월드 ${world} - 스테이지 ${stage} 클리어!`;
+    document.getElementById('correct-count').textContent = `${correctCount}/5`;
+    document.getElementById('total-exp').textContent = `+${totalExp} EXP`;
+
+    // 레벨 정보 (localStorage에서 가져오기)
+    const currentLevel = parseInt(localStorage.getItem('playerLevel')) || 5;
+    document.getElementById('current-level').textContent = `LV ${currentLevel}`;
+
+    // 진행 상황 업데이트
+    function updateProgress() {
+      const saved = localStorage.getItem('storyProgress');
+      let progress;
+      
+      if (saved) {
+        progress = JSON.parse(saved);
+      } else {
+        progress = {
+          worlds: {}
+        };
+        for (let i = 1; i <= 6; i++) {
+          progress.worlds[i] = {
+            unlocked: i === 1,
+            stagesCleared: 0,
+            stages: { 1: false, 2: false, 3: false }
+          };
+        }
+      }
+
+      // 현재 스테이지 클리어 표시
+      progress.worlds[world].stages[stage] = true;
+
+      // 클리어한 스테이지 수 계산
+      const cleared = Object.values(progress.worlds[world].stages).filter(v => v).length;
+      progress.worlds[world].stagesCleared = cleared;
+
+      // 모든 스테이지 클리어 시 다음 월드 해금
+      if (cleared === 3 && world < 6) {
+        progress.worlds[world + 1].unlocked = true;
+      }
+
+      localStorage.setItem('storyProgress', JSON.stringify(progress));
+      return progress;
+    }
+
+    const progress = updateProgress();
+
+    // 다음 스테이지 버튼
+    const nextStageBtn = document.getElementById('next-stage-btn');
+    if (stage < 3) {
+      // 다음 스테이지로
+      nextStageBtn.href = `problem-solving.html?mode=story&world=${world}&stage=${stage + 1}`;
+      nextStageBtn.textContent = `다음 스테이지 ➡️`;
+    } else if (world < 6) {
+      // 다음 월드로
+      nextStageBtn.href = `story-stages.html?world=${world + 1}`;
+      nextStageBtn.textContent = `다음 월드로 🚀`;
+    } else {
+      // 모든 월드 완료
+      nextStageBtn.href = `story-mode.html`;
+      nextStageBtn.textContent = `완료! 🎉`;
+    }
+
+    // 월드 선택 버튼
+    document.getElementById('back-to-world-btn').href = `story-stages.html?world=${world}`;
+
+    // 축하 효과
+    setTimeout(() => {
+      // 폭죽 효과 (간단한 애니메이션)
+      for (let i = 0; i < 20; i++) {
+        createConfetti();
+      }
+    }, 300);
+
+    function createConfetti() {
+      const confetti = document.createElement('div');
+      confetti.style.position = 'fixed';
+      confetti.style.width = '10px';
+      confetti.style.height = '10px';
+      confetti.style.background = ['#667eea', '#f093fb', '#43e97b', '#feca57'][Math.floor(Math.random() * 4)];
+      confetti.style.left = Math.random() * 100 + '%';
+      confetti.style.top = '-10px';
+      confetti.style.borderRadius = '50%';
+      confetti.style.pointerEvents = 'none';
+      confetti.style.zIndex = '9999';
+      document.body.appendChild(confetti);
+
+      const duration = 2000 + Math.random() * 1000;
+      const startTime = Date.now();
+
+      function animate() {
+        const elapsed = Date.now() - startTime;
+        const progress = elapsed / duration;
+
+        if (progress < 1) {
+          confetti.style.top = (progress * 100) + 'vh';
+          confetti.style.opacity = 1 - progress;
+          requestAnimationFrame(animate);
+        } else {
+          confetti.remove();
+        }
+      }
+
+      animate();
+    }
+  </script>
+</body>
+</html>
