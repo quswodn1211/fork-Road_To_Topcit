@@ -4,14 +4,33 @@
 
 console.log('🎮 TOPCIT Quest 시작!');
 
+// URL 파라미터 확인 (스토리모드 vs 자유모드)
+const urlParams = new URLSearchParams(window.location.search);
+const gameMode = urlParams.get('mode'); // 'story' or null(자유모드)
+const currentWorld = parseInt(urlParams.get('world')) || null;
+const currentStage = parseInt(urlParams.get('stage')) || null;
+
+console.log('게임 모드:', gameMode === 'story' ? '스토리모드' : '자유모드');
+if (gameMode === 'story') {
+    console.log(`월드 ${currentWorld}, 스테이지 ${currentStage}`);
+}
+
 // 게임 상태 관리
 let gameState = {
-    playerLevel: 5,
+    mode: gameMode,
+    world: currentWorld,
+    stage: currentStage,
+    playerLevel: parseInt(localStorage.getItem('playerLevel')) || 5,
     playerEXP: 0,
     playerMaxEXP: 100,
     currentProblem: null,
     score: 0,
-    defeatedEnemies: 0
+    defeatedEnemies: 0,
+    // 스토리모드 전용
+    storyHP: 3,
+    storyMaxHP: 3,
+    correctAnswers: 0,
+    totalProblems: 5
 };
 
 // 문제 데이터베이스
@@ -24,11 +43,10 @@ const problems = [
         answer: ["x=1, x=2", "x=2, x=1", "1, 2", "2, 1", "1,2", "2,1"],
         hint: "이 방정식은 (x-1)(x-2) = 0 으로 인수분해할 수 있습니다.",
         exp: 30,
-        // 백엔드에서 제공할 오답 피드백 데이터
         wrongFeedback: {
             chapter: "1단원 - 수학 기초",
             topic: "이차방정식 풀이",
-            detail: "이차방정식 x² - 3x + 2 = 0은 인수분해를 통해 (x-1)(x-2) = 0으로 나타낼 수 있습니다. 따라서 x = 1 또는 x = 2가 해가 됩니다. 근의 공식을 사용할 경우: x = (3 ± √(9-8))/2 = (3 ± 1)/2이므로 x = 1 또는 x = 2입니다."
+            detail: "이차방정식 x² - 3x + 2 = 0은 인수분해를 통해 (x-1)(x-2) = 0으로 나타낼 수 있습니다. 따라서 x = 1 또는 x = 2가 해가 됩니다."
         }
     },
     {
@@ -42,7 +60,7 @@ const problems = [
         wrongFeedback: {
             chapter: "2단원 - 알고리즘",
             topic: "시간 복잡도 분석",
-            detail: "배열을 순회하는 알고리즘의 시간 복잡도는 배열의 크기 n에 비례합니다. 배열의 모든 원소를 한 번씩 방문하므로 O(n)의 시간 복잡도를 가집니다. 상수 시간에 실행되는 연산(덧셈, 나눗셈)은 빅오 표기법에서 무시됩니다."
+            detail: "배열을 순회하는 알고리즘의 시간 복잡도는 배열의 크기 n에 비례합니다."
         }
     },
     {
@@ -56,7 +74,35 @@ const problems = [
         wrongFeedback: {
             chapter: "3단원 - 데이터베이스",
             topic: "SQL SELECT 문",
-            detail: "WHERE 절은 특정 조건을 만족하는 행만 선택하는 데 사용됩니다. 'age > 20'은 age 컬럼의 값이 20보다 큰 모든 레코드를 선택합니다. 만약 20 이상을 선택하려면 'age >= 20'을 사용해야 합니다."
+            detail: "WHERE 절은 특정 조건을 만족하는 행만 선택하는 데 사용됩니다."
+        }
+    },
+    {
+        id: 4,
+        title: "네트워크 문제:",
+        content: "TCP와 UDP의 차이점은?",
+        description: "TCP는 연결 지향적이고 신뢰성을 보장하는 프로토콜입니다. UDP는?",
+        answer: ["비연결", "빠른", "신뢰성 없음", "connectionless"],
+        hint: "UDP는 연결 설정 없이 데이터를 전송합니다.",
+        exp: 30,
+        wrongFeedback: {
+            chapter: "4단원 - 네트워크",
+            topic: "전송 계층 프로토콜",
+            detail: "UDP는 비연결형 프로토콜로 연결 설정 과정이 없어 빠르지만 신뢰성을 보장하지 않습니다."
+        }
+    },
+    {
+        id: 5,
+        title: "보안 문제:",
+        content: "암호화와 해싱의 차이는?",
+        description: "암호화는 복호화가 가능하지만, 해싱은?",
+        answer: ["불가능", "일방향", "복호화 불가", "단방향"],
+        hint: "해시 함수는 원본 데이터를 복원할 수 없습니다.",
+        exp: 35,
+        wrongFeedback: {
+            chapter: "5단원 - 정보보안",
+            topic: "암호화 vs 해싱",
+            detail: "해싱은 일방향 함수로 원본 데이터를 복원할 수 없습니다."
         }
     }
 ];
@@ -151,6 +197,24 @@ function hideWrongFeedback() {
 // ========================================
 document.addEventListener('DOMContentLoaded', function() {
     console.log('📄 페이지 로드 완료!');
+    console.log('🎮 게임 모드:', gameState.mode);
+    console.log('🌍 월드:', gameState.world);
+    console.log('⭐ 스테이지:', gameState.stage);
+    
+    // 스토리모드인 경우 HP 표시
+    if (gameState.mode === 'story') {
+        console.log('💚 스토리모드 - HP 박스 표시!');
+        const hpBox = document.getElementById('hp-box');
+        if (hpBox) {
+            hpBox.style.display = 'flex';
+            console.log('✅ HP 박스 표시 완료');
+            updateStoryHP();
+        } else {
+            console.error('❌ HP 박스 요소를 찾을 수 없음!');
+        }
+    } else {
+        console.log('🎯 자유모드 - HP 박스 숨김');
+    }
     
     loadProblem(currentProblemIndex);
     updateUI();
@@ -187,6 +251,26 @@ function updateUI() {
     document.getElementById('player-level').textContent = gameState.playerLevel;
 }
 
+// 스토리모드 HP 업데이트
+function updateStoryHP() {
+    const hpHearts = document.getElementById('hp-hearts');
+    if (!hpHearts) return;
+    
+    hpHearts.innerHTML = '';
+    
+    for (let i = 0; i < gameState.storyMaxHP; i++) {
+        const heart = document.createElement('span');
+        heart.className = 'heart';
+        heart.textContent = '❤️';
+        
+        if (i >= gameState.storyHP) {
+            heart.classList.add('lost');
+        }
+        
+        hpHearts.appendChild(heart);
+    }
+}
+
 function submitAnswer() {
     console.log('📝 답안 제출!');
     const userAnswer = document.getElementById('answer-input').value.trim();
@@ -219,6 +303,7 @@ function handleCorrectAnswer(problem) {
     // 경험치 획득
     gameState.playerEXP += problem.exp;
     gameState.defeatedEnemies++;
+    gameState.correctAnswers++;
     
     if (gameState.playerEXP >= gameState.playerMaxEXP) {
         levelUp();
@@ -233,10 +318,30 @@ function handleCorrectAnswer(problem) {
     // 경험치 획득 화면 표시
     showExpGain(problem.exp);
     
-    // 2.5초 후 다음 문제로 이동
+    // 스토리모드: 5문제 완료 확인
+    if (gameState.mode === 'story') {
+        if (currentProblemIndex + 1 >= gameState.totalProblems) {
+            // 스테이지 클리어!
+            setTimeout(() => {
+                const totalExp = gameState.correctAnswers * 30; // 문제당 평균 경험치
+                window.location.href = `stage-clear.html?world=${gameState.world}&stage=${gameState.stage}&correct=${gameState.correctAnswers}&exp=${totalExp}`;
+            }, 2500);
+            return;
+        }
+    }
+    
+    // 다음 문제로 이동
     setTimeout(() => {
         currentProblemIndex++;
-        loadProblem(currentProblemIndex);
+        
+        // 자유모드: 문제가 끝나면 처음으로
+        if (currentProblemIndex >= problems.length) {
+            if (gameState.mode !== 'story') {
+                showCompletionMessage();
+            }
+        } else {
+            loadProblem(currentProblemIndex);
+        }
     }, 2500);
 }
 
@@ -247,8 +352,27 @@ function handleIncorrectAnswer(problem) {
     flashGif('red');
     shakeGif();
     
+    // 스토리모드: HP 감소
+    if (gameState.mode === 'story') {
+        gameState.storyHP--;
+        updateStoryHP();
+        
+        // HP가 0이 되면 게임 오버
+        if (gameState.storyHP <= 0) {
+            setTimeout(() => {
+                if (confirm('❌ 게임 오버!\n\nHP가 모두 소진되었습니다.\n스테이지를 처음부터 다시 시작하시겠습니까?')) {
+                    // 스테이지 재시작
+                    window.location.href = `problem-solving.html?mode=story&world=${gameState.world}&stage=${gameState.stage}`;
+                } else {
+                    // 스테이지 선택 화면으로
+                    window.location.href = `story-stages.html?world=${gameState.world}`;
+                }
+            }, 500);
+            return;
+        }
+    }
+    
     // 오답 피드백 표시 (백엔드에서 받아올 데이터)
-    // 실제로는 서버 API 호출: fetch('/api/feedback', { problemId: problem.id })
     showWrongFeedback(problem.wrongFeedback);
 }
 
@@ -256,6 +380,9 @@ function levelUp() {
     gameState.playerLevel++;
     gameState.playerEXP = gameState.playerEXP - gameState.playerMaxEXP;
     gameState.playerMaxEXP = Math.floor(gameState.playerMaxEXP * 1.5);
+    
+    // 레벨 저장
+    localStorage.setItem('playerLevel', gameState.playerLevel);
     
     updateUI();
     flashGif('white');

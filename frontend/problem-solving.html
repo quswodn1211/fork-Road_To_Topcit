@@ -8,16 +8,19 @@
 </head>
 <body>
     <!-- 헤더 -->
-    <header class="header">
-        <div class="header-content">
-            <h1 class="logo">TOPCIT Quest</h1>
-            <nav class="nav">
-                <a href="#" class="nav-link">메뉴 1</a>
-                <a href="#" class="nav-link">메뉴 2</a>
-                <a href="#" class="nav-link">메뉴 3</a>
-                <a href="#" class="nav-link">로그인</a>
-            </nav>
-            <a href="#" class="nav-link nav-link-primary">마이페이지</a>
+    <!-- 헤더 -->
+    <header>
+        <div class="logo-img">
+          <img src="images/logo.png" alt="로고" style="height:50px; cursor: pointer;" onclick="window.location.href = 'main.html';">
+        </div>
+        <nav>
+            <a href="challenge.html">스킬 챌린지</a>
+            <a href="guide.html">성장 가이드</a>
+            <a href="story.html">스토리 모드</a>
+        </nav>
+        <div class="user-links">
+            <a href="login.html">로그인</a>
+            <a href="signup.html">회원가입</a>
         </div>
     </header>
 
@@ -39,6 +42,16 @@
                     <div class="level-box">
                         <span class="level-label">LV</span>
                         <span class="level-value" id="player-level">5</span>
+                    </div>
+                </div>
+                
+                <!-- HP 박스 (스토리모드 전용 - 왼쪽 상단) -->
+                <div class="hp-box" id="hp-box" style="display: none;">
+                    <span class="hp-label">HP</span>
+                    <div class="hp-hearts" id="hp-hearts">
+                        <span class="heart">❤️</span>
+                        <span class="heart">❤️</span>
+                        <span class="heart">❤️</span>
                     </div>
                 </div>
                 

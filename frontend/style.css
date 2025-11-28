@@ -7,6 +7,12 @@
     box-sizing: border-box;
 }
 
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -15,55 +21,62 @@ body {
 }
 
 /* ========================================
-   헤더
+   헤더 (main.html 스타일)
    ======================================== */
-.header {
-    background: linear-gradient(135deg, #2c3e50, #34495e);
-    padding: 1rem 0;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-
-.header-content {
-    max-width: 100%;
-    margin: 0 auto;
-    padding: 0 1rem;
+header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    padding: 10px 50px;
+    background: white;
 }
 
-.logo {
-    color: #3498db;
-    font-size: 1.8rem;
-    font-weight: bold;
-}
-
-.nav {
-    display: flex;
-    gap: 1.5rem;
-}
-
-.nav-link {
-    color: white;
+header a, header a:visited {
+    margin: 0 15px;
     text-decoration: none;
-    font-size: 1rem;
-    transition: color 0.3s;
+    color: #333; 
+    font-size: 17px;
 }
 
-.nav-link:hover {
-    color: #3498db;
+.user-links a, .user-links a:visited {
+    color: #777;
+    font-size: 15px;
 }
 
-.nav-link-primary {
-    background: #3498db;
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
+nav {
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.nav-link-primary:hover {
-    background: #2980b9;
-    color: white;
+@media (max-width: 900px) {
+    header {
+        flex-wrap: wrap; 
+        padding: 10px 20px; 
+    }
+
+    .logo-img {
+        width: 100%; 
+        text-align: center; 
+        margin-bottom: 10px;
+    }
+
+    nav {
+        width: 100%; 
+        text-align: center;
+        margin: 10px 0; 
+    }
+
+    header a {
+        display: inline-block;
+        margin: 5px 10px;
+    }
+
+    .user-links {
+        width: 100%; 
+        text-align: center;
+    }
 }
+
+
 
 /* ========================================
    메인 컨테이너
@@ -144,6 +157,45 @@ body {
     align-items: center;
     gap: 0.8rem;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    margin-bottom: 0.5rem;
+}
+
+/* HP 박스 (스토리모드) */
+.hp-box {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 3px solid #e74c3c;
+    border-radius: 10px;
+    padding: 0.8rem 1.2rem;
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    z-index: 10;
+}
+
+.hp-label {
+    color: #e74c3c;
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-right: 0.5rem;
+}
+
+.hp-hearts {
+    display: flex;
+    gap: 0.3rem;
+}
+
+.heart {
+    font-size: 1.5rem;
+    transition: all 0.3s;
+}
+
+.heart.lost {
+    opacity: 0.2;
+    filter: grayscale(100%);
 }
 
 .level-label {
