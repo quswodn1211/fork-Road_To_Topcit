@@ -1,9 +1,18 @@
 package com.opsw.backend.domain;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-/** 과목 테이블 */
+// 과목 정의 (각 과목은 하나의 월드를 가진다)
 @Entity
 @Getter
 @Builder
@@ -14,8 +23,12 @@ public class Subject {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // 과목 고유 ID
+    private Long id;
 
     @Column(length = 50, nullable = false, unique = true)
-    private String name; // 과목명
+    private String name;
+
+    public void rename(String name) {
+        this.name = name;
+    }
 }
