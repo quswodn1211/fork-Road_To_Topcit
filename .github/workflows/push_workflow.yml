@@ -1,19 +1,74 @@
-name: Docker Compose
-
+name: Backend API Test
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
 
 jobs:
-  build:
-    runs-on: ubuntu:latest
-    if: contains(github.event.head_commit.message, 'backend')
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
+  api-test:
+    runs-on: ubuntu-latest
 
-      - name: Run Docker Compose
-        run: docker compose up -d backend, db
+    steps:
+      # 1. 소스 체크아웃
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # 2. Docker Compose Version
+      - name: Docker Compose Version
+        run: docker compose version
+
+      # 3. Backend 실행
+      - name: Start Backend with RDS
+        run: docker compose up -d --build backend
+        env:
+          SPRING_DATASOURCE_URL: jdbc:mysql://topcit-db.cjg2aaai646f.ap-northeast-2.rds.amazonaws.com:3306/topcit
+          SPRING_DATASOURCE_USERNAME: admin
+          SPRING_DATASOURCE_PASSWORD: topcit1234
+
+      # 4. Backend 준비 대기 + 실패 시 로그 출력
+      - name: Wait for Backend
+        run: |
+          echo "⏳ Waiting for backend..."
+          for i in {1..60}; do
+            STATUS=$(curl -o /dev/null -s -w "%{http_code}" http://localhost:8080/api/subjects || true)
+            if [ "$STATUS" = "200" ]; then
+              echo "🎉 Backend is UP!"
+              exit 0
+            fi
+            echo "Backend not ready (HTTP $STATUS)... retrying"
+            sleep 3
+          done
+
+          echo "❌ Backend FAILED"
+          docker ps -a
+          docker logs backend
+          exit 1
+
+      ###########################################################
+      #                    GET ONLY TESTS
+      ###########################################################
+
+      - name: 1) GET /api/subjects
+        run: |
+          STATUS=$(curl -o /dev/null -s -w "%{http_code}" http://localhost:8080/api/subjects)
+          echo "Status: $STATUS"
+          test $STATUS -eq 200
+
+      - name: 2) GET /api/questions/1
+        run: |
+          STATUS=$(curl -o /dev/null -s -w "%{http_code}" http://localhost:8080/api/questions/1)
+          echo "Status: $STATUS"
+          test $STATUS -ge 200 && test $STATUS -lt 500
+
+      - name: 3) GET /api/questions?subject=1
+        run: |
+          STATUS=$(curl -o /dev/null -s -w "%{http_code}" "http://localhost:8080/api/questions?subject=1")
+          echo "Status: $STATUS"
+          test $STATUS -ge 200 && test $STATUS -lt 500
+
+      # 종료
+      - name: Shutdown Docker
+        if: always()
+        run: docker compose down
