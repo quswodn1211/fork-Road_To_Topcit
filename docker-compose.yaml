@@ -1,10 +1,23 @@
 version: '3.8'
 
 services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - app-net
+
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    container_name: backend
     ports:
       - "8080:8080"
     environment:
@@ -15,11 +28,20 @@ services:
   ai-service:
     build:
       context: ./ai
-      docekrfile: Dockerfile
+      dockerfile: Dockerfile
+    container_name: ai-service
     ports:
       - "8888:8888"
     environment:
-      - HF_TOKEN=hf_token
+      # GPU 서버 주소 (RunPod endpoint)
+      GPU_SERVER_URL: ${GPU_SERVER_URL}
+      HF_TOKEN: ${HF_TOKEN}
+    volumes:
+      - ai-logs:/app/logs
+    networks:
+      - app-net
 
-
+volumes:
+  backend-logs:
+  ai-logs:
 

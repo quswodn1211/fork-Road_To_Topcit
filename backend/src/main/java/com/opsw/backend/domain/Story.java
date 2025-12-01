@@ -6,13 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
-/**
- * 월드 안의 이야기 단위를 표현한다.
- */
+// 월드안의 이야기 단위를 표현한다
+// 각 스토리는 여러개의 스테이지로 구성됨
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -38,12 +35,19 @@ public class Story {
     private final List<Stage> stages = new ArrayList<>();
 
     private Story(World world, int storyNum) {
-        this.world = Objects.requireNonNull(world, "world must not be null");
+        if (world == null) {
+            throw new IllegalArgumentException("월드는 필수입니다");
+        }
+        this.world = world;
         this.storyNum = storyNum;
     }
 
     public static Story of(World world, int storyNum) {
         return new Story(world, storyNum);
+    }
+
+    public void changeStoryNum(int storyNum) {
+        this.storyNum = storyNum;
     }
 
     public void addStage(Stage stage) {
@@ -56,6 +60,6 @@ public class Story {
     }
 
     public List<Stage> getStages() {
-        return Collections.unmodifiableList(stages);
+        return stages;
     }
 }

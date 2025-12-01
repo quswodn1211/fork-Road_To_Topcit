@@ -6,9 +6,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/**
- * 사용자별 과목 경험치를 추적한다.
- */
+// 사용자별 과목 경험치를 추적한다
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -16,6 +14,8 @@ import lombok.NoArgsConstructor;
         uniqueConstraints = @UniqueConstraint(name = "uk_progress_user_subject",
                 columnNames = {"user_id", "subject_id"}))
 public class UserSubjectProgress {
+
+    public static final int MAX_EXPERIENCE = 100;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,7 +45,11 @@ public class UserSubjectProgress {
     }
 
     public void gain(int amount) {
-        this.experience += Math.max(0, amount);
+        if (amount <= 0) {
+            return;
+        }
+        int next = this.experience + amount;
+        this.experience = Math.min(next, MAX_EXPERIENCE);
     }
 
     public void reset() {

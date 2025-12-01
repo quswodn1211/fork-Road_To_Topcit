@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 properties:
   story:
@@ -64,3 +65,58 @@ ai:
 
 
 >>>>>>> 9451749ab0ed733aa81af86830f458e5a1618a4d
+=======
+properties:
+  story:
+    world:
+      count: 7 # 월드 개수
+      stage:
+        count: 3
+        problem:
+          count: 5
+    life-max: 3
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: learn-tc
+
+  datasource:
+    url: jdbc:mysql://topcit-db.cjg2aaai646f.ap-northeast-2.rds.amazonaws.com:3306/topcit?allowPublicKeyRetrieval=true&useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+    username: topcit_user
+    password: topcit1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
+
+app:
+  constants:
+    question-types: [MCQ, SHORT]
+    difficulty-levels: [Easy, Normal, Hard, Expert]
+    topcit-categories: [소프트웨어공학, 데이터베이스, 네트워크, 보안, 인공지능, 비즈니스]
+
+ai:
+  enabled: false      # false = 로컬 개발(더미), true = AI 서버 사용
+  url: http://localhost:5007 # 나중에 AI팀이 실제 운영 서버(URL)로 변경
+>>>>>>> 56483dbad22318ce7228ea069359a883ba827e68
