@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Road To TOPCIT</title>
+    <style>
+        
+        /* --- 기본 설정 --- */
+       body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+       header {
+            display: flex;
+            align-items: center;
+            padding: 10px 50px;
+            background: white;
+        }
+
+        header a, header a:visited {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #333; 
+            font-size: 17px;
+        }
+        
+        .user-links a, .user-links a:visited {
+            color: #777;
+            font-size: 15px;
+        }
+
+        nav {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* --- HERO 영역 스타일 (전체 배경) --- */
+        .hero {
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            min-height: 100vh;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.27);
+            z-index: 1; 
+        }
+        
+        .hero-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; 
+            z-index: 0; 
+        }
+
+        /* --- 중앙 콘텐츠 박스 스타일 --- */
+        .content-box {
+            background-color: rgba(255, 255, 255, 0.83);
+            backdrop-filter: blur(10px);
+            width: 90%;
+            max-width: 1200px; 
+            height: 75vh;
+            max-height: 720px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative; 
+            z-index: 2;
+            padding: 40px; 
+            padding-bottom: 100px;
+            box-sizing: border-box; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+            justify-content: flex-start;
+        }
+          
+
+        /* --- 미디어 쿼리 (화면 크기 대응) --- */
+        @media (max-width: 900px) {
+            .skill-card-flex-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .content-box {
+                width: 95%;
+                height: 65vh;
+            }
+            .skill-card-flex-container {
+                flex-direction: column;
+                flex-wrap: nowrap;
+                align-items: stretch;
+                padding: 10px;
+            }
+            .skill-card-item {
+                height: 120px;
+                width: auto;
+                margin: 5px 0;
+            }
+            .card-icon {
+                font-size: 36px;
+            }
+            .card-title {
+                font-size: 20px;
+            }
+            .start-button {
+                font-size: 20px;
+                padding: 12px 0;
+            }
+        }
+        
+        /* --- 하단바 스타일 --- */
+        footer {
+            background-color: #111; 
+            color: #ddd; 
+            padding: 40px 50px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            max-width: 1200px; 
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .footer-column h3 {
+            font-size: 16px;
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .footer-column a {
+            display: block;
+            color: #ddd;
+            text-decoration: none;
+            margin-bottom: 5px;
+        }
+
+        .footer-column a:hover {
+            color: #fff;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #333;
+            margin-top: 30px;
+            padding-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-img">
+          <img src="images/logo.png" alt="로고" style="height:50px; cursor: pointer;" onclick="window.location.href = 'main.html';"> 
+        </div>
+        <nav>
+            <a href="challenge.html">스킬 챌린지</a>
+            <a href="guide.html">성장 가이드</a>
+            <a href="story.html">스토리 모드</a>
+        </nav>
+        <div class="user-links">
+            <a href="login.html">로그인</a>
+            <a href="signup.html">회원가입</a>
+        </div>
+    </header>
+
+    <section class="hero">
+      
+      <div class="content-box">
+        <h2 style="font-size: 2.5rem; color: #333; margin-bottom: 1rem;">🗺️ 스토리 모드</h2>
+        <p style="font-size: 1.2rem; color: #666; margin-bottom: 2rem;">RPG 게임처럼 단원별 월드를 탐험하며 성장하세요!</p>
+        
+        <button class="start-story-btn" onclick="window.location.href='story-mode.html'" style="
+          background: #ffc300;
+          color: #391e1d;
+          border: none;
+          padding: 20px 60px;
+          font-size: 1.5rem;
+          font-weight: bold;
+          border-radius: 30px;
+          cursor: pointer;
+          box-shadow: 0 6px 20px rgba(255, 195, 0, 0.4);
+          transition: all 0.3s ease;
+          margin-top: 3rem;
+        ">
+          스토리 모드 시작하기 🎮
+        </button>
+      </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <div class="footer-logo">RTT</div>
+                <a href="#">이용약관</a>
+                <a href="#">공지사항</a>
+            </div>
+
+            <div class="footer-column">
+                <h3>서비스</h3>
+                <a href="challenge.html">스킬 챌린지</a>
+                <a href="guide.html">성장 가이드</a>
+                <a href="story.html">스토리 모드</a>
+            </div>
+
+            <div class="footer-column">
+                <h3>지원</h3>
+                <a href="#">FAQ / 문의</a>
+                <a href="#">사이트맵</a>
+            </div>
+            
+            <div class="footer-column">
+                <h3>RTT 소식 받기</h3>
+                <p>최신 업데이트 소식을 받아보세요.</p>
+                <input type="text" placeholder="이메일 주소 입력" style="padding: 8px; border-radius: 4px; border: none; width: 150px;">
+                <button style="padding: 8px 15px; background: #ffc300; border: none; border-radius: 4px; cursor: pointer; color: #333; font-weight: bold;">구독</button>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            ROAD TO TOPCIT&nbsp;&nbsp;|&nbsp;&nbsp;오픈소스SW 프로젝트
+        </div>
+    </footer>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const skillButtons = document.querySelectorAll('.skill-card-item');
+            const startButton = document.getElementById('start-button');
+            let selectedUrl = null; 
+
+            skillButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    skillButtons.forEach(btn => btn.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedUrl = this.getAttribute('data-url');
+                    
+                    startButton.classList.add('active');
+                    startButton.textContent = `'${this.querySelector('.card-title').textContent}' 챌린지 시작`;
+                });
+            });
+
+            startButton.addEventListener("click", function () {
+                if (selectedUrl && startButton.classList.contains('active')) {
+                    window.location.href = selectedUrl;
+                } else {
+                    alert("먼저 챌린지 항목을 선택해 주세요.");
+                }
+            });
+        });
+    </script>
+</body>
+</html>

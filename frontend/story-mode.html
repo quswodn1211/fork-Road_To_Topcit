@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TOPCIT Quest - 스토리모드</title>
+  <style>
+    
+    /* ========================================
+       헤더 (main.html 스타일)
+       ======================================== */
+    header {
+      display: flex;
+      align-items: center;
+      padding: 10px 50px;
+      background: white;
+    }
+
+    header a, header a:visited {
+      margin: 0 15px;
+      text-decoration: none;
+      color: #333; 
+      font-size: 17px;
+    }
+    
+    .user-links a, .user-links a:visited {
+      color: #777;
+      font-size: 15px;
+    }
+
+    nav {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    @media (max-width: 900px) {
+      header {
+        flex-wrap: wrap; 
+        padding: 10px 20px; 
+      }
+
+      .logo-img {
+        width: 100%; 
+        text-align: center; 
+        margin-bottom: 10px;
+      }
+
+      nav {
+        width: 100%; 
+        text-align: center;
+        margin: 10px 0; 
+      }
+
+      header a {
+        display: inline-block;
+        margin: 5px 10px;
+      }
+
+      .user-links {
+        width: 100%; 
+        text-align: center;
+      }
+    }
+/* ========================================
+       메인 컨테이너
+       ======================================== */
+    .main-container {
+      flex: 1;
+      max-width: 100%;
+      margin: 0;
+      padding: 0.5rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ========================================
+       스토리모드 프레임
+       ======================================== */
+    .story-frame {
+      flex: 1;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      padding: 2rem;
+      margin-bottom: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .page-title {
+      margin: 0 0 0.5rem;
+      font-size: 2rem;
+      font-weight: 800;
+      color: #2c3e50;
+      text-align: center;
+    }
+
+    .page-subtitle {
+      margin: 0 0 2rem;
+      color: #6b7280;
+      text-align: center;
+      font-size: 1.1rem;
+    }
+
+    /* ========================================
+       월드 그리드 (6개 단원)
+       ======================================== */
+    .world-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      padding: 1rem 0;
+      align-content: center;
+    }
+
+    .world-card {
+      position: relative;
+      background: linear-gradient(135deg, #f8f9fa, #ffffff);
+      border: 3px solid #e5e7eb;
+      border-radius: 15px;
+      padding: 2rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .world-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 35px rgba(102, 126, 234, 0.25);
+    }
+
+    .world-card.locked {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: linear-gradient(135deg, #e0e0e0, #f5f5f5);
+    }
+
+    .world-card.locked:hover {
+      transform: none;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .world-number {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.3rem;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .world-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .world-name {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #2c3e50;
+      margin-bottom: 0.5rem;
+    }
+
+    .world-progress {
+      font-size: 0.9rem;
+      color: #6b7280;
+      margin-top: 0.5rem;
+    }
+
+    .lock-icon {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* 월드별 색상 */
+    .world-card[data-world="1"] {
+      border-left: 6px solid #667eea;
+    }
+
+    .world-card[data-world="2"] {
+      border-left: 6px solid #f093fb;
+    }
+
+    .world-card[data-world="3"] {
+      border-left: 6px solid #4facfe;
+    }
+
+    .world-card[data-world="4"] {
+      border-left: 6px solid #43e97b;
+    }
+
+    .world-card[data-world="5"] {
+      border-left: 6px solid #fa709a;
+    }
+
+    .world-card[data-world="6"] {
+      border-left: 6px solid #feca57;
+    }
+
+    /* ========================================
+       푸터
+       ======================================== */
+    .footer {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.875rem;
+      padding: 1rem 0;
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    /* ========================================
+       반응형
+       ======================================== */
+    @media (max-width: 1024px) {
+      .world-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav {
+        display: none;
+      }
+      
+      .world-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .world-card {
+        min-height: 150px;
+      }
+    }
+  </style>
+</head>
+<body>
+    <!-- 헤더 -->
+  <header>
+    <div class="logo-img">
+      <img src="images/logo.png" alt="로고" style="height:50px; cursor: pointer;" onclick="window.location.href = 'main.html';"> 
+    </div>
+    <nav>
+      <a href="challenge.html">스킬 챌린지</a>
+      <a href="guide.html">성장 가이드</a>
+      <a href="story.html">스토리 모드</a>
+    </nav>
+    <div class="user-links">
+      <a href="login.html">로그인</a>
+      <a href="signup.html">회원가입</a>
+    </div>
+  </header>
+
+  <!-- 본문 -->
+  <main class="main-container">
+    <div class="story-frame">
+      <h1 class="page-title">🗺️ 스토리 모드</h1>
+      <p class="page-subtitle">단원을 선택하여 스테이지를 돌파하세요</p>
+
+      <div class="world-grid" id="world-grid">
+        <!-- 월드 1 -->
+        <div class="world-card" data-world="1" data-unlocked="true">
+          <div class="world-number">1</div>
+          <div class="world-icon">💻</div>
+          <div class="world-name">기술 경영 이해</div>
+          <div class="world-progress">0/3 스테이지</div>
+        </div>
+
+        <!-- 월드 2 -->
+        <div class="world-card locked" data-world="2" data-unlocked="false">
+          <div class="world-number">2</div>
+          <div class="lock-icon">🔒</div>
+          <div class="world-name">소프트웨어 개발</div>
+          <div class="world-progress">잠금됨</div>
+        </div>
+
+        <!-- 월드 3 -->
+        <div class="world-card locked" data-world="3" data-unlocked="false">
+          <div class="world-number">3</div>
+          <div class="lock-icon">🔒</div>
+          <div class="world-name">데이터베이스</div>
+          <div class="world-progress">잠금됨</div>
+        </div>
+
+        <!-- 월드 4 -->
+        <div class="world-card locked" data-world="4" data-unlocked="false">
+          <div class="world-number">4</div>
+          <div class="lock-icon">🔒</div>
+          <div class="world-name">네트워크</div>
+          <div class="world-progress">잠금됨</div>
+        </div>
+
+        <!-- 월드 5 -->
+        <div class="world-card locked" data-world="5" data-unlocked="false">
+          <div class="world-number">5</div>
+          <div class="lock-icon">🔒</div>
+          <div class="world-name">정보보안</div>
+          <div class="world-progress">잠금됨</div>
+        </div>
+
+        <!-- 월드 6 -->
+        <div class="world-card locked" data-world="6" data-unlocked="false">
+          <div class="world-number">6</div>
+          <div class="lock-icon">🔒</div>
+          <div class="world-name">IT 프로젝트 관리</div>
+          <div class="world-progress">잠금됨</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">© 2025 TOPCIT Quest — Story Mode</footer>
+
+  <script>
+    // 로컬스토리지에서 진행 상황 불러오기
+    function loadProgress() {
+      const savedProgress = localStorage.getItem('storyProgress');
+      if (savedProgress) {
+        return JSON.parse(savedProgress);
+      }
+      // 기본값: 월드 1만 해금
+      return {
+        worlds: {
+          1: { unlocked: true, stagesCleared: 0 },
+          2: { unlocked: false, stagesCleared: 0 },
+          3: { unlocked: false, stagesCleared: 0 },
+          4: { unlocked: false, stagesCleared: 0 },
+          5: { unlocked: false, stagesCleared: 0 },
+          6: { unlocked: false, stagesCleared: 0 }
+        }
+      };
+    }
+
+    // 진행 상황 저장
+    function saveProgress(progress) {
+      localStorage.setItem('storyProgress', JSON.stringify(progress));
+    }
+
+    // 페이지 로드 시 진행 상황 적용
+    const progress = loadProgress();
+
+    document.querySelectorAll('.world-card').forEach(card => {
+      const worldNum = card.dataset.world;
+      const worldData = progress.worlds[worldNum];
+
+      if (worldData.unlocked) {
+        card.classList.remove('locked');
+        card.dataset.unlocked = 'true';
+        
+        // 진행 상황 업데이트
+        const progressText = card.querySelector('.world-progress');
+        progressText.textContent = `${worldData.stagesCleared}/3 스테이지`;
+
+        // 클리어한 경우 표시
+        if (worldData.stagesCleared === 3) {
+          progressText.textContent = '✅ 완료!';
+          progressText.style.color = '#43e97b';
+          progressText.style.fontWeight = 'bold';
+        }
+      }
+    });
+
+    // 월드 카드 클릭 이벤트
+    document.querySelectorAll('.world-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const worldNum = card.dataset.world;
+        const isUnlocked = card.dataset.unlocked === 'true';
+
+        if (!isUnlocked) {
+          alert('이전 월드를 먼저 완료해주세요! 🔒');
+          return;
+        }
+
+        // 스테이지 선택 화면으로 이동
+        window.location.href = `story-stages.html?world=${worldNum}`;
+      });
+    });
+
+    // 호버 효과
+    document.querySelectorAll('.world-card').forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        if (card.dataset.unlocked === 'true') {
+          card.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,7 +1,0 @@
-.git
-__pycache__
-*.pyc
-data/
-.cache/
-venv/
-.ipynb_checkpoints/
